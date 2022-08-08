@@ -98,6 +98,13 @@
 &lt;li&gt;Now, upon hitting enter and making the request, the contents of &lt;code&gt;/etc/shadow&lt;/code&gt; (or whatever file you requested, will be fetched)&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;img src=&#34;https://whokilleddb.github.io/blogs/blogs/images/dlink_vulnerability/etc_shadow.png&#34; alt=&#34;/etc/shadow&#34;&gt;&lt;/p&gt;
+&lt;h1 id=&#34;escalating-to-denial-of-service&#34; &gt;Escalating to Denial of Service
+&lt;span&gt;
+    &lt;a href=&#34;#escalating-to-denial-of-service&#34;&gt;
+        &lt;svg viewBox=&#34;0 0 28 23&#34; height=&#34;100%&#34; width=&#34;19&#34; xmlns=&#34;http://www.w3.org/2000/svg&#34;&gt;&lt;path d=&#34;M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71&#34; fill=&#34;none&#34; stroke-linecap=&#34;round&#34; stroke-miterlimit=&#34;10&#34; stroke-width=&#34;2&#34;/&gt;&lt;path d=&#34;M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71&#34; fill=&#34;none&#34; stroke-linecap=&#34;round&#34; stroke-miterlimit=&#34;10&#34; stroke-width=&#34;2&#34;/&gt;&lt;/svg&gt;
+    &lt;/a&gt;
+&lt;/span&gt;
+&lt;/h1&gt;&lt;p&gt;It is possible to launch a Denial of Service attack using the above method. To do this, simply replace the file to read woth &lt;code&gt;/dev/random&lt;/code&gt; and this shall send the server into a bottomless read operation, effectively causing a Denial of Service attack.&lt;/p&gt;
 &lt;h1 id=&#34;impact&#34; &gt;Impact
 &lt;span&gt;
     &lt;a href=&#34;#impact&#34;&gt;

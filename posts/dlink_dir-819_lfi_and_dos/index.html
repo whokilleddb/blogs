@@ -289,6 +289,13 @@ In this blog post, I explain how I found a Local-File-Inclusion 0day and escalat
 <li>Now, upon hitting enter and making the request, the contents of <code>/etc/shadow</code> (or whatever file you requested, will be fetched)</li>
 </ul>
 <p><img src="/blogs/images/dlink_vulnerability/etc_shadow.png" alt="/etc/shadow"></p>
+<h1 id="escalating-to-denial-of-service" >Escalating to Denial of Service
+<span>
+    <a href="#escalating-to-denial-of-service">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h1><p>It is possible to launch a Denial of Service attack using the above method. To do this, simply replace the file to read woth <code>/dev/random</code> and this shall send the server into a bottomless read operation, effectively causing a Denial of Service attack.</p>
 <h1 id="impact" >Impact
 <span>
     <a href="#impact">
