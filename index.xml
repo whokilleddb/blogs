@@ -142,7 +142,7 @@
         &lt;svg viewBox=&#34;0 0 28 23&#34; height=&#34;100%&#34; width=&#34;19&#34; xmlns=&#34;http://www.w3.org/2000/svg&#34;&gt;&lt;path d=&#34;M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71&#34; fill=&#34;none&#34; stroke-linecap=&#34;round&#34; stroke-miterlimit=&#34;10&#34; stroke-width=&#34;2&#34;/&gt;&lt;path d=&#34;M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71&#34; fill=&#34;none&#34; stroke-linecap=&#34;round&#34; stroke-miterlimit=&#34;10&#34; stroke-width=&#34;2&#34;/&gt;&lt;/svg&gt;
     &lt;/a&gt;
 &lt;/span&gt;
-&lt;/h1&gt;&lt;p&gt;The original advisory was sent to &lt;code&gt;security@dlink.com&lt;/code&gt; but could not elicit a response. Hence, this article&amp;rsquo;s role is to spread out the word about thw vulnerability.&lt;/p&gt;
+&lt;/h1&gt;&lt;p&gt;The original advisory was sent to &lt;code&gt;security@dlink.com&lt;/code&gt; but could not elicit a response. Hence, this article&amp;rsquo;s role is to spread out the word about the vulnerability.&lt;/p&gt;
 </description>
     </item>
     
