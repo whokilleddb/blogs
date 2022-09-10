@@ -12,10 +12,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="referrer" content="no-referrer-when-downgrade">
 
-<title>DLink DIR 819 LFI And DoS - bl0g</title>
+<title>CVE-2022-38258: DLink DIR 819 LFI And DoS - bl0g</title>
 
 <meta name="description" content="Introduction D-Link is one of the leading brands when it comes to manufacturing consumer routers. There&rsquo;s a fair chance that you have a D-Link router back at home. The D-Link DIR 819 model is a very popular router.
-In this blog post, I explain how I found a Local-File-Inclusion 0day and escalated it to achieve a Denial-of-Service attack. Though the blog is written with respect to the DIR-819 model, it should be reproduceable on any router running the same firmware.">
+In this blog post, I explain how I found a Local-File-Inclusion 0day, now designated as CVE-2022-38258, and escalated it to achieve a Denial-of-Service attack. Though the blog is written with respect to the DIR-819 model, it should be reproduceable on any router running the same firmware.">
 
 
 
@@ -87,9 +87,9 @@ In this blog post, I explain how I found a Local-File-Inclusion 0day and escalat
 
 
 
-<meta property="og:title" content="DLink DIR 819 LFI And DoS" />
+<meta property="og:title" content="CVE-2022-38258: DLink DIR 819 LFI And DoS" />
 <meta property="og:description" content="Introduction D-Link is one of the leading brands when it comes to manufacturing consumer routers. There&rsquo;s a fair chance that you have a D-Link router back at home. The D-Link DIR 819 model is a very popular router.
-In this blog post, I explain how I found a Local-File-Inclusion 0day and escalated it to achieve a Denial-of-Service attack. Though the blog is written with respect to the DIR-819 model, it should be reproduceable on any router running the same firmware." />
+In this blog post, I explain how I found a Local-File-Inclusion 0day, now designated as CVE-2022-38258, and escalated it to achieve a Denial-of-Service attack. Though the blog is written with respect to the DIR-819 model, it should be reproduceable on any router running the same firmware." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://whokilleddb.github.io/blogs/posts/dlink_dir-819_lfi_and_dos/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2022-07-31T21:01:25+05:30" />
@@ -97,9 +97,9 @@ In this blog post, I explain how I found a Local-File-Inclusion 0day and escalat
 
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="DLink DIR 819 LFI And DoS"/>
+<meta name="twitter:title" content="CVE-2022-38258: DLink DIR 819 LFI And DoS"/>
 <meta name="twitter:description" content="Introduction D-Link is one of the leading brands when it comes to manufacturing consumer routers. There&rsquo;s a fair chance that you have a D-Link router back at home. The D-Link DIR 819 model is a very popular router.
-In this blog post, I explain how I found a Local-File-Inclusion 0day and escalated it to achieve a Denial-of-Service attack. Though the blog is written with respect to the DIR-819 model, it should be reproduceable on any router running the same firmware."/>
+In this blog post, I explain how I found a Local-File-Inclusion 0day, now designated as CVE-2022-38258, and escalated it to achieve a Denial-of-Service attack. Though the blog is written with respect to the DIR-819 model, it should be reproduceable on any router running the same firmware."/>
 
 
 
@@ -202,7 +202,7 @@ In this blog post, I explain how I found a Local-File-Inclusion 0day and escalat
     <article class="post h-entry">
         <div class="post-header">
             <header>
-                <h1 class="p-name post-title">DLink DIR 819 LFI And DoS</h1>
+                <h1 class="p-name post-title">CVE-2022-38258: DLink DIR 819 LFI And DoS</h1>
 
                 
             </header>
@@ -216,7 +216,7 @@ In this blog post, I explain how I found a Local-File-Inclusion 0day and escalat
 </span>
 </h1><p>D-Link is one of the leading brands when it comes to manufacturing consumer routers. There&rsquo;s a fair chance that you have a D-Link router back at home. The <a href="https://www.dlink.com/en/products/dir-819-wireless-ac750-dual-band-router">D-Link DIR 819</a> model is a very popular router.</p>
 <p><img src="https://www.dlink.com/-/media/global-product-images/consumer/home-networking/routers/dir-819/product-preview/dir-819-front.png?h=820&amp;la=en&amp;w=1000&amp;hash=1905DBB36FD741BB592DAC13D76DB393" alt="D-Link DIR 819"></p>
-<p>In this blog post, I explain how I found a Local-File-Inclusion 0day and escalated it to achieve a Denial-of-Service attack. Though the blog is written with respect to the <em>DIR-819</em> model, it should be reproduceable on any router running the same firmware.</p>
+<p>In this blog post, I explain how I found a Local-File-Inclusion 0day, now designated as CVE-2022-38258, and escalated it to achieve a Denial-of-Service attack. Though the blog is written with respect to the <em>DIR-819</em> model, it should be reproduceable on any router running the same firmware.</p>
 <h1 id="description" >Description
 <span>
     <a href="#description">
@@ -327,13 +327,6 @@ In this blog post, I explain how I found a Local-File-Inclusion 0day and escalat
 </tr>
 </tbody>
 </table>
-<h1 id="disclaimer" >Disclaimer
-<span>
-    <a href="#disclaimer">
-        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
-    </a>
-</span>
-</h1><p>The original advisory was sent to <code>security@dlink.com</code> but could not elicit a response. Hence, this article&rsquo;s role is to spread out the word about the vulnerability.</p>
 
         </div>
         

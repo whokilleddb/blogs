@@ -439,7 +439,7 @@
     </item>
     
     <item>
-      <title>DLink DIR 819 LFI And DoS</title>
+      <title>CVE-2022-38258: DLink DIR 819 LFI And DoS</title>
       <link>https://whokilleddb.github.io/blogs/posts/dlink_dir-819_lfi_and_dos/</link>
       <pubDate>Sun, 31 Jul 2022 21:01:25 +0530</pubDate>
       
@@ -452,7 +452,7 @@
 &lt;/span&gt;
 &lt;/h1&gt;&lt;p&gt;D-Link is one of the leading brands when it comes to manufacturing consumer routers. There&amp;rsquo;s a fair chance that you have a D-Link router back at home. The &lt;a href=&#34;https://www.dlink.com/en/products/dir-819-wireless-ac750-dual-band-router&#34;&gt;D-Link DIR 819&lt;/a&gt; model is a very popular router.&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://www.dlink.com/-/media/global-product-images/consumer/home-networking/routers/dir-819/product-preview/dir-819-front.png?h=820&amp;amp;la=en&amp;amp;w=1000&amp;amp;hash=1905DBB36FD741BB592DAC13D76DB393&#34; alt=&#34;D-Link DIR 819&#34;&gt;&lt;/p&gt;
-&lt;p&gt;In this blog post, I explain how I found a Local-File-Inclusion 0day and escalated it to achieve a Denial-of-Service attack. Though the blog is written with respect to the &lt;em&gt;DIR-819&lt;/em&gt; model, it should be reproduceable on any router running the same firmware.&lt;/p&gt;
+&lt;p&gt;In this blog post, I explain how I found a Local-File-Inclusion 0day, now designated as CVE-2022-38258, and escalated it to achieve a Denial-of-Service attack. Though the blog is written with respect to the &lt;em&gt;DIR-819&lt;/em&gt; model, it should be reproduceable on any router running the same firmware.&lt;/p&gt;
 &lt;h1 id=&#34;description&#34; &gt;Description
 &lt;span&gt;
     &lt;a href=&#34;#description&#34;&gt;
@@ -563,13 +563,6 @@
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;h1 id=&#34;disclaimer&#34; &gt;Disclaimer
-&lt;span&gt;
-    &lt;a href=&#34;#disclaimer&#34;&gt;
-        &lt;svg viewBox=&#34;0 0 28 23&#34; height=&#34;100%&#34; width=&#34;19&#34; xmlns=&#34;http://www.w3.org/2000/svg&#34;&gt;&lt;path d=&#34;M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71&#34; fill=&#34;none&#34; stroke-linecap=&#34;round&#34; stroke-miterlimit=&#34;10&#34; stroke-width=&#34;2&#34;/&gt;&lt;path d=&#34;M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71&#34; fill=&#34;none&#34; stroke-linecap=&#34;round&#34; stroke-miterlimit=&#34;10&#34; stroke-width=&#34;2&#34;/&gt;&lt;/svg&gt;
-    &lt;/a&gt;
-&lt;/span&gt;
-&lt;/h1&gt;&lt;p&gt;The original advisory was sent to &lt;code&gt;security@dlink.com&lt;/code&gt; but could not elicit a response. Hence, this article&amp;rsquo;s role is to spread out the word about the vulnerability.&lt;/p&gt;
 </description>
     </item>
     
