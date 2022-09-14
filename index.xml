@@ -23,7 +23,7 @@
         &lt;svg viewBox=&#34;0 0 28 23&#34; height=&#34;100%&#34; width=&#34;19&#34; xmlns=&#34;http://www.w3.org/2000/svg&#34;&gt;&lt;path d=&#34;M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71&#34; fill=&#34;none&#34; stroke-linecap=&#34;round&#34; stroke-miterlimit=&#34;10&#34; stroke-width=&#34;2&#34;/&gt;&lt;path d=&#34;M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71&#34; fill=&#34;none&#34; stroke-linecap=&#34;round&#34; stroke-miterlimit=&#34;10&#34; stroke-width=&#34;2&#34;/&gt;&lt;/svg&gt;
     &lt;/a&gt;
 &lt;/span&gt;
-&lt;/h1&gt;&lt;p&gt;&lt;strong&gt;Challenge Name&lt;/strong&gt;: &lt;a href=&#34;https://tryhackme.com/room/agentt&#34;&gt;Agnett&lt;/a&gt;&lt;/p&gt;
+&lt;/h1&gt;&lt;p&gt;&lt;strong&gt;Challenge Name&lt;/strong&gt;: &lt;a href=&#34;https://tryhackme.com/room/digdug&#34;&gt;Dig Dug&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Difficulty&lt;/strong&gt;: (Super) Easy
 &lt;img src=&#34;https://tryhackme-images.s3.amazonaws.com/room-icons/c583f9d6cc8a7f2a749fad911eb81eb3.png&#34; alt=&#34;Dig Dug&#34;&gt;&lt;/p&gt;
 &lt;h1 id=&#34;nmap-enumeration&#34; &gt;Nmap Enumeration
