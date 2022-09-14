@@ -2,13 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://whokilleddb.github.io/blogs/posts/a_study_in_obfuscation/</loc>
-    <lastmod>2022-08-20T15:18:00+05:30</lastmod>
-  </url><url>
     <loc>https://whokilleddb.github.io/blogs/</loc>
-    <lastmod>2022-08-20T15:18:00+05:30</lastmod>
+    <lastmod>2022-09-15T00:22:07+05:30</lastmod>
   </url><url>
     <loc>https://whokilleddb.github.io/blogs/posts/</loc>
+    <lastmod>2022-09-15T00:22:07+05:30</lastmod>
+  </url><url>
+    <loc>https://whokilleddb.github.io/blogs/posts/thm_agentt/</loc>
+    <lastmod>2022-09-15T00:22:07+05:30</lastmod>
+  </url><url>
+    <loc>https://whokilleddb.github.io/blogs/posts/a_study_in_obfuscation/</loc>
     <lastmod>2022-08-20T15:18:00+05:30</lastmod>
   </url><url>
     <loc>https://whokilleddb.github.io/blogs/posts/dlink_dir-819_lfi_and_dos/</loc>
