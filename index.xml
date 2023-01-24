@@ -12,14 +12,14 @@
     
     
     <item>
-      <title>ETW Patching for Dummies</title>
-      <link>https://whokilleddb.github.io/blogs/posts/etw-patching-for-dummies/</link>
+      <title>A script kiddie&#39;s guide to the land of .NET, CLR and ETW</title>
+      <link>https://whokilleddb.github.io/blogs/posts/dotnet-clr-etw/</link>
       <pubDate>Wed, 25 Jan 2023 02:09:33 +0530</pubDate>
       
-      <guid>https://whokilleddb.github.io/blogs/posts/etw-patching-for-dummies/</guid>
-      <description>&lt;h1 id=&#34;introduction-to-all-things-etw&#34; &gt;Introduction to all things ETW
+      <guid>https://whokilleddb.github.io/blogs/posts/dotnet-clr-etw/</guid>
+      <description>&lt;h1 id=&#34;rant-as-an-introduction&#34; &gt;Rant as an Introduction
 &lt;span&gt;
-    &lt;a href=&#34;#introduction-to-all-things-etw&#34;&gt;
+    &lt;a href=&#34;#rant-as-an-introduction&#34;&gt;
         &lt;svg viewBox=&#34;0 0 28 23&#34; height=&#34;100%&#34; width=&#34;19&#34; xmlns=&#34;http://www.w3.org/2000/svg&#34;&gt;&lt;path d=&#34;M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71&#34; fill=&#34;none&#34; stroke-linecap=&#34;round&#34; stroke-miterlimit=&#34;10&#34; stroke-width=&#34;2&#34;/&gt;&lt;path d=&#34;M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71&#34; fill=&#34;none&#34; stroke-linecap=&#34;round&#34; stroke-miterlimit=&#34;10&#34; stroke-width=&#34;2&#34;/&gt;&lt;/svg&gt;
     &lt;/a&gt;
 &lt;/span&gt;

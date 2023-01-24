@@ -2,10 +2,10 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://whokilleddb.github.io/blogs/</loc>
+    <loc>https://whokilleddb.github.io/blogs/posts/dotnet-clr-etw/</loc>
     <lastmod>2023-01-25T02:09:33+05:30</lastmod>
   </url><url>
-    <loc>https://whokilleddb.github.io/blogs/posts/etw-patching-for-dummies/</loc>
+    <loc>https://whokilleddb.github.io/blogs/</loc>
     <lastmod>2023-01-25T02:09:33+05:30</lastmod>
   </url><url>
     <loc>https://whokilleddb.github.io/blogs/posts/</loc>
