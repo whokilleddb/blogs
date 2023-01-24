@@ -14,7 +14,7 @@
 
 <title>ETW Patching for Dummies - bl0g</title>
 
-<meta name="description" content="ETW Patching For Dummies Introduction to all things ETW When initially getting into ETW and patching it, I was not prepared for what was coming. It was a deep rabbit hole of .NET, CLR and Windows Internals. Coming from a pure-C background(and a bit of Rust), this was a deep hole I was not prepared for at all. This blog is supposed to be more of a Journal than a tutorial as I try to figure things out!">
+<meta name="description" content="Introduction to all things ETW When initially getting into ETW and patching it, I was not prepared for what was coming. It was a deep rabbit hole of .NET, CLR and Windows Internals. Coming from a pure-C background(and a bit of Rust), this was a deep hole I was not prepared for at all. This blog is supposed to be more of a Journal than a tutorial as I try to figure things out!">
 
 
 
@@ -87,7 +87,7 @@
 
 
 <meta property="og:title" content="ETW Patching for Dummies" />
-<meta property="og:description" content="ETW Patching For Dummies Introduction to all things ETW When initially getting into ETW and patching it, I was not prepared for what was coming. It was a deep rabbit hole of .NET, CLR and Windows Internals. Coming from a pure-C background(and a bit of Rust), this was a deep hole I was not prepared for at all. This blog is supposed to be more of a Journal than a tutorial as I try to figure things out!" />
+<meta property="og:description" content="Introduction to all things ETW When initially getting into ETW and patching it, I was not prepared for what was coming. It was a deep rabbit hole of .NET, CLR and Windows Internals. Coming from a pure-C background(and a bit of Rust), this was a deep hole I was not prepared for at all. This blog is supposed to be more of a Journal than a tutorial as I try to figure things out!" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://whokilleddb.github.io/blogs/posts/etw-patching-for-dummies/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2023-01-25T02:09:33+05:30" />
@@ -95,7 +95,7 @@
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="ETW Patching for Dummies"/>
-<meta name="twitter:description" content="ETW Patching For Dummies Introduction to all things ETW When initially getting into ETW and patching it, I was not prepared for what was coming. It was a deep rabbit hole of .NET, CLR and Windows Internals. Coming from a pure-C background(and a bit of Rust), this was a deep hole I was not prepared for at all. This blog is supposed to be more of a Journal than a tutorial as I try to figure things out!"/>
+<meta name="twitter:description" content="Introduction to all things ETW When initially getting into ETW and patching it, I was not prepared for what was coming. It was a deep rabbit hole of .NET, CLR and Windows Internals. Coming from a pure-C background(and a bit of Rust), this was a deep hole I was not prepared for at all. This blog is supposed to be more of a Journal than a tutorial as I try to figure things out!"/>
 
 
 
@@ -204,27 +204,21 @@
             </header>
         </div>
         <div class="content e-content">
-            <h1 id="etw-patching-for-dummies" >ETW Patching For Dummies
-<span>
-    <a href="#etw-patching-for-dummies">
-        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
-    </a>
-</span>
-</h1><h2 id="introduction-to-all-things-etw" >Introduction to all things ETW
+            <h1 id="introduction-to-all-things-etw" >Introduction to all things ETW
 <span>
     <a href="#introduction-to-all-things-etw">
         <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
     </a>
 </span>
-</h2><p>When initially getting into ETW and patching it, I was not prepared for what was coming. It was a deep rabbit hole of <code>.NET</code>, <code>CLR</code> and <code>Windows Internals</code>. Coming from a pure-<code>C</code> background(and a bit of <code>Rust</code>), this was a deep hole I was not prepared for at all. This blog is supposed to be more of a Journal than a tutorial as I try to figure things out! So, if you are someone who is as lost as I am, with Zero knowledge of the <code>.NET Framework</code> or any of the <code>C#</code> stuff and want to go around patching stuff, welcome to the journey.</p>
+</h1><p>When initially getting into ETW and patching it, I was not prepared for what was coming. It was a deep rabbit hole of <code>.NET</code>, <code>CLR</code> and <code>Windows Internals</code>. Coming from a pure-<code>C</code> background(and a bit of <code>Rust</code>), this was a deep hole I was not prepared for at all. This blog is supposed to be more of a Journal than a tutorial as I try to figure things out! So, if you are someone who is as lost as I am, with Zero knowledge of the <code>.NET Framework</code> or any of the <code>C#</code> stuff and want to go around patching stuff, welcome to the journey.</p>
 <p>*PS: There will be a scramble of topics in no particular order, mostly discussing topics relevant to the cause. The contents of this blog post, including all source code can be found <a href="https://github.com/whokilleddb/etw-patching-for-dummies">here</a> *</p>
-<h2 id="show-and-tell---the-net-framework" >Show and Tell - The .NET FRAMEWORK
+<h1 id="show-and-tell---the-net-framework" >Show and Tell - The .NET FRAMEWORK
 <span>
     <a href="#show-and-tell---the-net-framework">
         <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
     </a>
 </span>
-</h2><p>So, when I started writing this blog, I had no idea what <code>.NET</code> really was. All knew was that its <em>some-sorta</em> framework by Microsoft for doing windows stuff. Turns out, it is a framework for <code>C#</code> and a version of <code>C++</code> called <code>C++/CLI</code>, which can be compiled with <code>Visual C++</code> on Windows. Here, my first question was, <em>&ldquo;Hey, then how is it different from normal C++ code?&rdquo;</em></p>
+</h1><p>So, when I started writing this blog, I had no idea what <code>.NET</code> really was. All knew was that its <em>some-sorta</em> framework by Microsoft for doing windows stuff. Turns out, it is a framework for <code>C#</code> and a version of <code>C++</code> called <code>C++/CLI</code>, which can be compiled with <code>Visual C++</code> on Windows. Here, my first question was, <em>&ldquo;Hey, then how is it different from normal C++ code?&rdquo;</em></p>
 <p>And to solve that question, I decided to do what all good devs would have done: write a <em>&ldquo;Hello World&rdquo;</em> program in both styles.</p>
 <p><strong>Native C++</strong></p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">// helloworld.cpp
@@ -289,24 +283,24 @@
 </span>
 </h1><p>The <code>CLR</code> is the Virtual Machine component of the <code>.NET Framework</code>. It is  responsible for executing <code>Managed</code> code. It provides a layer of abstraction between the application and the operating system, allowing the application to run in a more secure and stable environment. The <code>CLR</code> also provides a number of services to the application, such as memory management, thread execution, security, and code execution.</p>
 <p>One of the more important components which the <code>CLR</code> contains is a JIT compiler which is responsible for converting <code>MSIL</code> (Microsoft Intermediate Language) code, which is the intermediate language generated by the compiler when the source code of a <code>.NET</code> application is compiled, into native machine code that can be executed by the computer&rsquo;s hardware..</p>
-<h2 id="msil---a-short-note" >MSIL - A Short Note
+<h1 id="msil---a-short-note" >MSIL - A Short Note
 <span>
     <a href="#msil---a-short-note">
         <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
     </a>
 </span>
-</h2><p><code>MSIL</code> (Microsoft Intermediate Language) is a low-level programming language used in the <code>.NET Framework</code>. It is an intermediate language between the source code of a program and the machine code that is executed by the computer.</p>
+</h1><p><code>MSIL</code> (Microsoft Intermediate Language) is a low-level programming language used in the <code>.NET Framework</code>. It is an intermediate language between the source code of a program and the machine code that is executed by the computer.</p>
 <p>When a <code>.NET</code> application is compiled, the source code written in languages such as <code>C#</code> or Visual Basic is transformed into <code>MSIL</code>. <code>MSIL</code> is a platform-independent language, meaning that the same <code>MSIL</code> code can be executed on different platforms and architectures, such as Windows, Linux, or macOS, as long as the <code>.NET Framework</code> is installed.</p>
 <p><code>MSIL</code> contains instructions that are executed by the <code>CLR</code> (Common Language Runtime) at runtime, rather than being executed directly by the computer&rsquo;s hardware. This allows the <code>CLR</code> to provide services such as memory management, security, and code execution, to the application.</p>
 <p><code>MSIL</code> also contains metadata, which is data about the types, members, and other elements in the code. The metadata is used by the <code>CLR</code> to determine the types and members that are used by the application, to resolve dependencies, and to enforce security policies.</p>
 <p>It&rsquo;s important to note that, <code>MSIL</code> code is not executed directly by the hardware, instead it is compiled to native code at runtime by the JIT (Just-In-Time) compiler, which is a component of the <code>CLR</code>. This allows the code to be optimized for the specific hardware and operating system that it is running on, which results in more efficient execution.</p>
-<h2 id="managed-code" >Managed Code
+<h1 id="managed-code" >Managed Code
 <span>
     <a href="#managed-code">
         <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
     </a>
 </span>
-</h2><p>Managed code in the .NET Framework refers to code that is executed by the Common Language Runtime (<code>CLR</code>) rather than directly by the computer&rsquo;s hardware. <code>Managed code</code> is written in a managed programming language, such as <code>C#</code> or <code>Visual Basic</code>, and it is compiled into an intermediate language called Microsoft Intermediate Language (MSIL). MSIL is a low-level programming language that is executed by the CLR at runtime, rather than being executed directly by the computer&rsquo;s hardware.</p>
+</h1><p>Managed code in the .NET Framework refers to code that is executed by the Common Language Runtime (<code>CLR</code>) rather than directly by the computer&rsquo;s hardware. <code>Managed code</code> is written in a managed programming language, such as <code>C#</code> or <code>Visual Basic</code>, and it is compiled into an intermediate language called Microsoft Intermediate Language (MSIL). MSIL is a low-level programming language that is executed by the CLR at runtime, rather than being executed directly by the computer&rsquo;s hardware.</p>
 <hr>
 <p>Okay that was a lot of theory. Long story short, <code>.NET</code> code requires the <code>CLR</code> to run the <code>MSIL</code>, hence it is <em>&ldquo;managed&rdquo;</em>. Now here comes the next big question: <strong>&ldquo;Can we call managed code from an unmanaged process?&rdquo;</strong>. Well, turns out we can, but for that we need to manually load <code>CLR</code> into the process. Taking a page out of <a href="https://blog.xpnsec.com/hiding-your-dotnet-etw/">Adam Chester&rsquo;s Blog</a> we can write some code to load a <code>CLR</code> instance into an unmanaged process and call managed code from there.
 The code can be found <a href="https://github.com/whokilleddb/load-my-clr">here</a>. Lets break it down.</p>
@@ -318,13 +312,13 @@ The code can be found <a href="https://github.com/whokilleddb/load-my-clr">here<
 <li><code>StopRuntime</code></li>
 </ul>
 <p>These functions load the <code>CLR</code> into our unmanaged process, start the runtime, run the <code>.NET</code> code and then finally stop the runtime.</p>
-<h3 id="getclrinterface" ><code>GetCLRInterface</code>
+<h2 id="getclrinterface" ><code>GetCLRInterface</code>
 <span>
     <a href="#getclrinterface">
         <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
     </a>
 </span>
-</h3><p>First, we create a instance of the type <code>ICLRMetaHost</code> by calling the following the <code>CLRCreateInstance()</code> function as such:</p>
+</h2><p>First, we create a instance of the type <code>ICLRMetaHost</code> by calling the following the <code>CLRCreateInstance()</code> function as such:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#a6e22e">CLRCreateInstance</span>(<span style="color:#f92672">&amp;</span>CLSID_CLRMetaHost, <span style="color:#f92672">&amp;</span>IID_ICLRMetaHost, (LPVOID<span style="color:#f92672">*</span>)<span style="color:#f92672">&amp;</span>metahost);
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (result <span style="color:#f92672">!=</span> S_OK){
 </span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">fprintf</span>(stderr, <span style="color:#e6db74">&#34;[!] CLRCreateInstance() function failed (0x%x)</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, result);
@@ -370,13 +364,13 @@ The code can be found <a href="https://github.com/whokilleddb/load-my-clr">here<
 </span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> OLEOBJ_S_INVALIDHWND;
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>If this is all good to go, we can then move onto the next step of the process, which is to actually start the <code>CLR</code>  into our current process.</p>
-<h3 id="startruntime" ><code>StartRuntime</code>
+<h2 id="startruntime" ><code>StartRuntime</code>
 <span>
     <a href="#startruntime">
         <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
     </a>
 </span>
-</h3><p>This function is essentially a wrapper around the <code>ICLRRuntimeHost_Start</code> function, which is used to start the execution of the <code>CLR</code> in a process. It initializes the <code>CLR</code> and sets up the infrastructure needed for managed code execution. Once the <code>CLR</code> is started, it allows the process to load and execute assemblies that contain managed code.</p>
+</h2><p>This function is essentially a wrapper around the <code>ICLRRuntimeHost_Start</code> function, which is used to start the execution of the <code>CLR</code> in a process. It initializes the <code>CLR</code> and sets up the infrastructure needed for managed code execution. Once the <code>CLR</code> is started, it allows the process to load and execute assemblies that contain managed code.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;[i] Starting Runtime</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
 </span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#a6e22e">ICLRRuntimeHost_Start</span>(runtimehost);
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (result <span style="color:#f92672">!=</span> S_OK){
@@ -384,13 +378,13 @@ The code can be found <a href="https://github.com/whokilleddb/load-my-clr">here<
 </span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> result;
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>This loads the <code>CLR</code> into our current process and at this point, we are good to run some managed code!</p>
-<h3 id="runassembly" ><code>RunAssembly</code>
+<h2 id="runassembly" ><code>RunAssembly</code>
 <span>
     <a href="#runassembly">
         <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
     </a>
 </span>
-</h3><p>This is the part where we finally the run managed code with the <code>ICLRRuntimeHost_ExecuteInDefaultAppDomain</code> function. It takes in the path to the assembly, the name of the type in the format <code>Namespace.Class</code>, the name of the method to invoke, the string parameter to pass to the program and  variable to store the return code.</p>
+</h2><p>This is the part where we finally the run managed code with the <code>ICLRRuntimeHost_ExecuteInDefaultAppDomain</code> function. It takes in the path to the assembly, the name of the type in the format <code>Namespace.Class</code>, the name of the method to invoke, the string parameter to pass to the program and  variable to store the return code.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#a6e22e">ICLRRuntimeHost_ExecuteInDefaultAppDomain</span>(runtimehost, assembly_path, namespace_class, function_name, cmd_arguments, <span style="color:#f92672">&amp;</span>res);
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (result <span style="color:#f92672">!=</span> S_OK){
@@ -409,13 +403,13 @@ The code can be found <a href="https://github.com/whokilleddb/load-my-clr">here<
 </span></span><span style="display:flex;"><span><span style="color:#e6db74">L</span><span style="color:#e6db74">&#34;Hello There (General Kenobi)&#34;</span>
 </span></span><span style="display:flex;"><span>)
 </span></span></code></pre></div><p><img src="/blogs/images/etw-patching-for-dummies/poc.png" alt=""></p>
-<h3 id="stopruntime" ><code>StopRuntime</code>
+<h2 id="stopruntime" ><code>StopRuntime</code>
 <span>
     <a href="#stopruntime">
         <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
     </a>
 </span>
-</h3><p>Finally, we use stop the execution of the code with the <code>ICLRRuntimeHost_Stop</code> method call.</p>
+</h2><p>Finally, we use stop the execution of the code with the <code>ICLRRuntimeHost_Stop</code> method call.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#a6e22e">ICLRRuntimeHost_Stop</span>(runtimehost);
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (result <span style="color:#f92672">!=</span> S_OK){
@@ -427,13 +421,13 @@ The code can be found <a href="https://github.com/whokilleddb/load-my-clr">here<
 <p>One very interesting thing I noticed was if I open the process in <code>ProcessHacker</code>, right before the <code>CLR</code> runtime is started with the <code>ICLRRuntimeHost_Start()</code> function, the <code>.NET</code> tabs do not appear. However, as soon as the <code>CLR</code> host is up and running, the <code>.NET</code> tabs reappear again. <em>Interesting&hellip;&hellip;</em></p>
 <p><img src="/blogs/images/etw-patching-for-dummies/loader_under_process_hacker.png" alt="">
 One gaping problem in this project is that using this particular approach, we need the managed code to be run on the disk itself. A better way to do things would be to run things in-memory, but that&rsquo;s a problem for another time.</p>
-<h2 id="etw-what-the-hell-is-even-that" >ETW: What the hell is even that?
+<h1 id="etw-what-the-hell-is-even-that" >ETW: What the hell is even that?
 <span>
     <a href="#etw-what-the-hell-is-even-that">
         <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
     </a>
 </span>
-</h2><p>According to <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/devtest/event-tracing-for-windows--etw-">MSDN docs</a>, <code>ETW</code> can be defined as:</p>
+</h1><p>According to <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/devtest/event-tracing-for-windows--etw-">MSDN docs</a>, <code>ETW</code> can be defined as:</p>
 <blockquote>
 <p><code>Event Tracing for Windows</code> (<code>ETW</code>) provides a mechanism to trace and log events that are raised by user-mode applications and kernel-mode drivers. <code>ETW</code> is implemented in the Windows operating system and provides developers a fast, reliable, and versatile set of event tracing features.</p>
 </blockquote>
@@ -455,13 +449,13 @@ One gaping problem in this project is that using this particular approach, we ne
 </code></pre><p><img src="/blogs/images/etw-patching-for-dummies/listing_all_providers.png" alt=""></p>
 <p>Infact, we can write our own consumers, as you fill find <a href="https://github.com/whokilleddb/etw-patching-for-dummies">here</a> where you can monitor the logs generated by a process from a specific provider (there is a big list of providers in the <code>includes/providers.h</code> file so remember to swap out line <code>131</code> in <code>src/consumer.c</code> as I am too lazy to write a cli implementation just yet).</p>
 <p>Now the question is, how do we get around <code>ETW</code>? We cant let the defender know that red teamers are on the system, therefore, it&rsquo;s time to patch things up!</p>
-<h2 id="patching-etw" >Patching ETW
+<h1 id="patching-etw" >Patching ETW
 <span>
     <a href="#patching-etw">
         <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
     </a>
 </span>
-</h2><p>For the basics of ETW patching, I really recommend going through <a href="https://www.mdsec.co.uk/2020/03/hiding-your-net-etw/">Adam Chester&rsquo;s Blog</a> which talks about patching the <a href="https://learn.microsoft.com/en-us/windows/win32/devnotes/etweventwrite">EtwEventWrite</a> function. However, for our intents and purpose, we would be referring to this <a href="https://whiteknightlabs.com/2021/12/11/bypassing-etw-for-fun-and-profit/">Whiteknight Blog</a> which goes one level deeper and patches the  <code>NtTraceEvent</code> syscall used by a lot of the logging utilities.</p>
+</h1><p>For the basics of ETW patching, I really recommend going through <a href="https://www.mdsec.co.uk/2020/03/hiding-your-net-etw/">Adam Chester&rsquo;s Blog</a> which talks about patching the <a href="https://learn.microsoft.com/en-us/windows/win32/devnotes/etweventwrite">EtwEventWrite</a> function. However, for our intents and purpose, we would be referring to this <a href="https://whiteknightlabs.com/2021/12/11/bypassing-etw-for-fun-and-profit/">Whiteknight Blog</a> which goes one level deeper and patches the  <code>NtTraceEvent</code> syscall used by a lot of the logging utilities.</p>
 <p>The idea is to patch the <code>NtTraceEvent</code> function to return a value of 0 (<code>STATUS_SUCCESS</code>) indicates that the call was successful and the requested operation was completed. We overwrite the beginning of the function with:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-asm" data-lang="asm"><span style="display:flex;"><span><span style="color:#a6e22e">xor</span> <span style="color:#66d9ef">rax</span>, <span style="color:#66d9ef">eax</span>
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">ret</span>
@@ -476,30 +470,13 @@ One gaping problem in this project is that using this particular approach, we ne
 <p>Apart from that we should be easily able to patch things up. The <code>patcher.c</code> program has a more refined version of the PoC code and once compiled, we can use <code>WinDbg</code> to see the syscall being patched in real time.</p>
 <p><img src="/blogs/images/etw-patching-for-dummies/patched_etw.png" alt=""></p>
 <p>Thus, we successfully patched ETW at a syscall level. ETW patching is just one of the many things you can do to blind EDRs. As a begineer, I wanted to understand how <code>C#</code>, <code>.NET</code> and <code>ETW</code> all come in together in thw Windows landscape, and how we as red teamers can be one step ahead at all times.</p>
-<h2 id="compilation" >Compilation
-<span>
-    <a href="#compilation">
-        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
-    </a>
-</span>
-</h2><p>To compile the sources, you can run the <code>compile.bat</code> script:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>&gt; .\compile.bat
-</span></span></code></pre></div><p>Or, to compile them manually, run:</p>
-<ul>
-<li><strong>Consumer</strong></li>
-</ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>cl.exe /nologo /Ox /MT /W0 /GS- /DNDEBUG /I .\includes /Tc.\src\consumer.c /link /OUT<span style="color:#960050;background-color:#1e0010">:</span>consumer.exe /SUBSYSTEM<span style="color:#960050;background-color:#1e0010">:</span>CONSOLE /MACHINE<span style="color:#960050;background-color:#1e0010">:</span>x64
-</span></span></code></pre></div><ul>
-<li><strong>Patcher</strong></li>
-</ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>cl.exe /nologo /Ox /MT /W0 /GS- /DNDEBUG /I .\includes /Tc.\src\patcher.c /link /OUT<span style="color:#960050;background-color:#1e0010">:</span>patcher.exe /SUBSYSTEM<span style="color:#960050;background-color:#1e0010">:</span>CONSOLE /MACHINE<span style="color:#960050;background-color:#1e0010">:</span>x64
-</span></span></code></pre></div><h2 id="references" >References
+<h1 id="references" >References
 <span>
     <a href="#references">
         <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
     </a>
 </span>
-</h2><ul>
+</h1><ul>
 <li><a href="https://www.mdsec.co.uk/2020/03/hiding-your-net-etw/">Hiding Your .NET – ETW</a></li>
 <li><a href="https://www.cobaltstrike.com/blog/cobalt-strike-3-11-the-snake-that-eats-its-tail/">Cobalt Strike 3.11 – The snake that eats its tail</a></li>
 <li><a href="https://mez0.cc/posts/common-language-runtime-1">Common Language Runtime #1: An Introduction</a></li>
