@@ -408,8 +408,9 @@ The interesting fact here is that these restrictions come in only when the execu
 </span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> nt_hdr<span style="color:#f92672">-&gt;</span>OptionalHeader.AddressOfEntryPoint;
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Once we have the entry-point offset, we can free the bytes as they are no longer needed, as well as the handle to the target file is closed, thereby deleting it!</p>
+<p><img src="https://media.tenor.com/gfSWsxaDN78AAAAC/south-park-its-gone.gif" alt=""></p>
 <h3 id="spawn-a-child-process">Spawn A Child Process</h3>
-<p>Now that we have our section handle, we need to create a child process with the Section handle.</p>
+<p>Now that we have our section handle, we need to create a child process with it.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>PCP_INFO <span style="color:#a6e22e">create_cp</span>(HANDLE hsection) {
 </span></span><span style="display:flex;"><span>	DWORD retlen <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
 </span></span><span style="display:flex;"><span>	CP_INFO <span style="color:#f92672">*</span> p_info <span style="color:#f92672">=</span> (PCP_INFO)<span style="color:#a6e22e">malloc</span>(<span style="color:#66d9ef">sizeof</span>(CP_INFO));
