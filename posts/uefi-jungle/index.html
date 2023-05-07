@@ -21,8 +21,8 @@
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title></title>
-    <meta name="description" content="I am Batman" />
+    <title>UEFI Jungle &middot; </title>
+    <meta name="description" content="" />
 
     
     <link type="text/css" rel="stylesheet" href="https://whokilleddb.github.io/blogs/css/poole.css">
@@ -35,7 +35,6 @@
 
 
     
-    <link href="https://whokilleddb.github.io/blogs/index.xml" rel="alternate" type="application/rss+xml" title="" />
     
     <style>
     body {
@@ -199,10 +198,8 @@ powered by <a target="_blank" href="https://gohugo.io">Hugo</a> | themed with <a
 </aside>
 
         <main class="content container">
-            <div class="posts">
-    
-    <article class="post">
-        <div class="info">
+            <div class="post">
+  <div class="info">
     <h1 class="post-title">
         <a href="https://whokilleddb.github.io/blogs/posts/uefi-jungle/">UEFI Jungle</a>
     </h1>
@@ -217,192 +214,113 @@ powered by <a target="_blank" href="https://gohugo.io">Hugo</a> | themed with <a
     
 </div>
 
-        The UEFI Jungle While writing LazarusOS, I first came across UEFI from an implementation standpoint. I am pretty sure everyone has dealt with UEFI at some point, especially during booting up a new OS. In the good old days, we had the choice between Legacy BIOS and UEFI, and during some of my earlier iterations of the project, I did write some BIOS bootloaders in assembly, but transitioning to UEFI was a whole new game.
+  <h2 id="the-uefi-jungle">The UEFI Jungle</h2>
+<p>While writing <a href="https://github.com/whokilleddb/lazarusOS/">LazarusOS</a>, I first came across UEFI from an implementation standpoint. I am pretty sure everyone has dealt with UEFI at some point, especially during booting up a new OS. In the good old days, we had the choice between Legacy BIOS and UEFI, and during some of my earlier iterations of the project, I did write some BIOS bootloaders in assembly, but transitioning to UEFI was a whole new game.</p>
+<p>The first thing which overwhelmed me were the plethora of terms like:</p>
+<ul>
+<li>EFI</li>
+<li>UEFI</li>
+<li>UEFI PI</li>
+<li>UEFI Forum</li>
+<li>TIANOCORE</li>
+<li>EDK/EDK 2</li>
+</ul>
+<p>In this blog post, we try to debunk some of these terms and ELI5 some terminology which every OS developer is bound to run into at some point.</p>
+<h2 id="efiuefi">EFI/UEFI</h2>
+<p>The first question which came to my mind when beginning to research this topic was <em>&ldquo;What the hell is the difference between EFI and UEFI?&rdquo;</em></p>
+<p><strong>EFI</strong> stands for <em>Extensible Firmware Interface,</em> while <strong>UEFI</strong> stands for <em>Unified EFI</em>. Turns out, for all intents and purposes, they are the same thing (more or less).</p>
+<p>Quoting <a href="https://www.intel.com/content/www/us/en/architecture-and-technology/unified-extensible-firmware-interface/efi-homepage-general-technology.html">Intel</a>:</p>
+<blockquote>
+<p>The UEFI Specification was primarily intended for the next generation of IA architecture–based computers, and is an outgrowth of the &ldquo;Intel® Boot Initiative&rdquo; (IBI) program that began in 1998.</p>
+<p>Intel&rsquo;s original version of this specification was publicly named EFI, ending with the EFI 1.10 version.</p>
+<p>In 2005, The Unified EFI Forum was formed as an industry-wide organization to promote adoption and continue the development of the EFI Specification. Using the EFI 1.10 Specification as the starting point, this industry group released the following specifications, renamed Unified EFI.</p>
+</blockquote>
+<p>So, UEFI is just an upgraded version of EFI. However, there are some subtle differences between the two which I think are worth mentioning:</p>
+<ul>
+<li>
+<p><strong>Compatibilhttps://uefi.org/specificationsity</strong>: UEFI is backward compatible with EFI firmware, meaning that an EFI firmware interface can be upgraded to a UEFI firmware interface. However, not all EFI firmware is compatible with UEFI.</p>
+</li>
+<li>
+<p><strong>Architecture</strong>: UEFI supports both 32-bit and 64-bit architectures, while EFI only supports 32-bit architectures.</p>
+</li>
+<li>
+<p><strong>Boot process</strong>: UEFI supports Secure Boot, which verifies the digital signature of the bootloader and operating system before allowing them to run. EFI does not have this feature.</p>
+</li>
+</ul>
+<p>But, then again, <em>what is UEFI exactly?</em> We will borrow the definition from <a href="https://wiki.osdev.org/UEFI">OSDev</a> which describes it as follows:</p>
+<blockquote>
+<p>(U)EFI or (Unified) Extensible Firmware Interface is a specification for x86, x86-64, ARM, and Itanium platforms that defines a software interface between the operating system and the platform firmware/BIOS.</p>
+</blockquote>
+<p>Therefore, to put it simply, it is just a set of rules which any communication channels between the OS and the platform/firmware.</p>
+<p>The interface consists of data tables that contain platform-related information, plus boot and runtime service calls that are available to the operating system and its loader. Together, these provide a standard environment for booting an operating system and running pre-boot applications.</p>
+<h2 id="uefi-pi">UEFI PI</h2>
+<p><em>UEFI Platform Initialization (UEFI PI)</em> is a set of <em>specifications</em> developed by the <a href="#uefi-forum">UEFI Forum</a>.</p>
+<p>It defines a standard interface between the platform firmware (UEFI firmware) and the operating system loader or kernel. The UEFI PI specification includes guidelines for implementing the platform initialization process, which is responsible for initializing various hardware components such as the processor, memory, and storage devices.</p>
+<p>The supported architectures/interfaces are:</p>
+<ul>
+<li>IA-32/x64</li>
+<li>AArch32/64</li>
+<li>RISC-V</li>
+</ul>
+<p>You can find the Platform Initialization (PI) Specification documentation <a href="https://uefi.org/sites/default/files/resources/PI_Spec_1_6.pdf">here</a>.</p>
+<h2 id="uefi-forum">UEFI Forum</h2>
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Logo_of_the_UEFI_Forum.svg/800px-Logo_of_the_UEFI_Forum.svg.png" alt=""></p>
+<p>The Unified EFI Forum is the group responsible for developing, managing and promoting UEFI specifications.</p>
+<p>The UEFI Forum was formed in 2005 to provide a platform for its members to collaborate and advance the UEFI specification. Its members include computer hardware manufacturers, firmware developers, operating system vendors, and other companies and organizations that are interested in promoting UEFI.</p>
+<p>The specifications maintained by the UEFI Forum are:</p>
+<ul>
+<li>UEFI Specification</li>
+<li>UEFI Shell Specification</li>
+<li>UEFI PI Specification</li>
+<li>UEFI PI Distribution Packaging Specification</li>
+<li>ACPI Specification</li>
+</ul>
+<p>All of these can be found listed <a href="https://uefi.org/specifications">here</a>!</p>
+<h2 id="tianocore">TIANOCORE</h2>
+<p><img src="https://www.tianocore.org/images/logo2.svg" alt="Tianocore"></p>
+<p>TianoCore is the community supporting an open source implementation of the Unified Extensible Firmware Interface (UEFI).</p>
+<p>In June of 2004, Intel announced that it would release the <em>“Foundation Code”</em> of its Extensible Firmware Interface (EFI), a successor to the 16-bit x86 <em>“legacy</em>” PC BIOS, under an open source license. This Foundation Code, developed by Intel as part of a project code named <strong>Tiano</strong>, was Intel’s <em>“preferred implementation”</em> of EFI. This evolved into EDK, EDK II, and other open source projects under the TianoCore community.</p>
+<p>The EFI Specifications were contributed to the United EFI Forum as part of the original UEFI Specifications, which has been adopted by over 200 companies and shipped on millions of compute devices. The UEFI Forum does not endorse any particular implementation, but TianoCore is designed to implement the UEFI and UEFI PI specifications.</p>
+<h2 id="edkedk-2">EDK/EDK 2</h2>
+<p>EDK II is a modern, feature-rich, cross-platform firmware development environment for the UEFI and PI specifications. EDK II is open source, using a BSD+Patent.</p>
+<p>The first EDK (EFI Developer Kit) was developed by Intel and released in 2002. It was designed to help developers create UEFI-based firmware and software.</p>
+<p>Subsequently, Intel developed the next version of the EDK, known as EDK II, which was released in 2005. The EDK II was a major update to the original EDK and included significant changes and improvements. It is developed in C and maintained by the TianoCore community.</p>
+<p>You can find out more about the EDK II <a href="https://github.com/tianocore/tianocore.github.io/wiki/EDK-II">here</a></p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://p.ost2.fyi/courses/course-v1:OpenSecurityTraining2+Arch4021_intro_UEFI+2023_v1/course/">Architecture 4021: Introductory UEFI</a></li>
+<li><a href="https://uefi.org/">uefi.org</a></li>
+<li><a href="https://github.com/tianocore/tianocore.github.io/wiki/EDK-II">EDK 2 Wiki</a></li>
+</ul>
+
+  <hr>
+<div class="footer">
+    
+	    
+            
+	            <a class="previous-post" href="https://whokilleddb.github.io/blogs/posts/process-ghosting/?ref=footer">« Process Ghosting</a>
+	        
         
-        <div class="read-more-link">
-            <a href="/blogs/posts/uefi-jungle/">Read More…</a>
-        </div>
-        
-    </article>
-    <article class="post">
-        <div class="info">
-    <h1 class="post-title">
-        <a href="https://whokilleddb.github.io/blogs/posts/process-ghosting/">Process Ghosting</a>
-    </h1>
-    <time datetime="2023-04-05T14:59:22&#43;0530" class="post-date">
-        April 5, 2023
-    </time>
-    
-    
-    
-    
-    
+	    
     
 </div>
 
-        Ghosted - A PoC on Process Ghosting &ldquo;Ghost Processes Not People&rdquo;
-Introduction Process Ghosting is a technique of running payloads from an executable that has already been deleted. On Windows. it is possible to create a file, put it in a delete pending stage, write your payload to it, map it to an image section for it, close the file handle to delete the file, and then finally create a process from the mapped image section.
-        
-        <div class="read-more-link">
-            <a href="/blogs/posts/process-ghosting/">Read More…</a>
-        </div>
-        
-    </article>
-    <article class="post">
-        <div class="info">
-    <h1 class="post-title">
-        <a href="https://whokilleddb.github.io/blogs/posts/dotnet-clr-etw/">A gentle guide to the land of .NET, CLR and ETW</a>
-    </h1>
-    <time datetime="2023-01-25T02:09:33&#43;0530" class="post-date">
-        January 25, 2023
-    </time>
-    
-    
-    
-    
-    
-    
+  <div class="article-toc " >
+    <h4></h4>
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#the-uefi-jungle">The UEFI Jungle</a></li>
+    <li><a href="#efiuefi">EFI/UEFI</a></li>
+    <li><a href="#uefi-pi">UEFI PI</a></li>
+    <li><a href="#uefi-forum">UEFI Forum</a></li>
+    <li><a href="#tianocore">TIANOCORE</a></li>
+    <li><a href="#edkedk-2">EDK/EDK 2</a></li>
+    <li><a href="#references">References</a></li>
+  </ul>
+</nav>
 </div>
 
-        Rant as an Introduction When initially getting into ETW and patching it, I was not prepared for what was coming. It was a deep rabbit hole of .NET, CLR and Windows Internals. Coming from a pure-C background(and a bit of Rust), this was a deep hole I was not prepared for at all. This blog is supposed to be more of a Journal than a tutorial as I try to figure things out!
-        
-        <div class="read-more-link">
-            <a href="/blogs/posts/dotnet-clr-etw/">Read More…</a>
-        </div>
-        
-    </article>
-    <article class="post">
-        <div class="info">
-    <h1 class="post-title">
-        <a href="https://whokilleddb.github.io/blogs/posts/thm_gallery/">TryHackMe: Gallery</a>
-    </h1>
-    <time datetime="2022-09-15T01:50:35&#43;0530" class="post-date">
-        September 15, 2022
-    </time>
-    
-    
-    
-    
-    
-    
 </div>
-
-        Introduction Challenge Name: Gallery
-Difficulty: Easy
-Nmap Enumeration Command :
-$ sudo nmap -A -T4 --open -p- 10.10.17.83 -oN Gallery.nmap Output :
-# Nmap 7.92 scan initiated Thu Sep 15 01:55:38 2022 as: nmap -A -T4 --open -p- -oN Gallery.nmap 10.10.17.83 Nmap scan report for 10.10.17.83 Host is up (0.19s latency). Not shown: 65516 closed tcp ports (reset), 17 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE VERSION 80/tcp open http Apache httpd 2.
-        
-        <div class="read-more-link">
-            <a href="/blogs/posts/thm_gallery/">Read More…</a>
-        </div>
-        
-    </article>
-    <article class="post">
-        <div class="info">
-    <h1 class="post-title">
-        <a href="https://whokilleddb.github.io/blogs/posts/thm_dig_dug/">TryHackMe: Dig Dug</a>
-    </h1>
-    <time datetime="2022-09-15T00:59:42&#43;0530" class="post-date">
-        September 15, 2022
-    </time>
-    
-    
-    
-    
-    
-    
-</div>
-
-        Introduction Challenge Name: Dig Dug
-Difficulty: (Super) Easy Nmap Scan TCP Scan Command :
-$ sudo nmap -A -T4 --open -p- 10.10.237.159 -oN DigDug.nmap Output :
-# Nmap 7.92 scan initiated Thu Sep 15 01:04:24 2022 as: nmap -A -T4 --open -p- -oN DigDug.nmap 10.10.237.159 Nmap scan report for 10.10.237.159 Host is up (0.16s latency). Not shown: 65275 closed tcp ports (reset), 259 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE VERSION 22/tcp open ssh OpenSSH 8.
-        
-        <div class="read-more-link">
-            <a href="/blogs/posts/thm_dig_dug/">Read More…</a>
-        </div>
-        
-    </article>
-    <article class="post">
-        <div class="info">
-    <h1 class="post-title">
-        <a href="https://whokilleddb.github.io/blogs/posts/thm_agentt/">TryHackMe: Agentt</a>
-    </h1>
-    <time datetime="2022-09-15T00:22:07&#43;0530" class="post-date">
-        September 15, 2022
-    </time>
-    
-    
-    
-    
-    
-    
-</div>
-
-        Introduction Challenge Name: Agnett
-Difficulty: (Super) Easy
-Nmap Scan Command :
-$ sudo nmap -A -T4 --open -p- 10.10.121.103 -oN Agentt.nmap Output :
-# Nmap 7.92 scan initiated Thu Sep 15 00:26:09 2022 as: nmap -A -T4 --open -p- -oN Agentt.nmap 10.10.121.103 Nmap scan report for 10.10.121.103 Host is up (0.17s latency). Not shown: 63135 closed tcp ports (reset), 2399 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE VERSION 80/tcp open http PHP cli server 5.
-        
-        <div class="read-more-link">
-            <a href="/blogs/posts/thm_agentt/">Read More…</a>
-        </div>
-        
-    </article>
-    <article class="post">
-        <div class="info">
-    <h1 class="post-title">
-        <a href="https://whokilleddb.github.io/blogs/posts/a_study_in_obfuscation/">A Study In Obfuscation</a>
-    </h1>
-    <time datetime="2022-08-20T15:18:00&#43;0530" class="post-date">
-        August 20, 2022
-    </time>
-    
-    
-    
-    
-    
-    
-</div>
-
-        Introduction In this blog series, we explore how to obfuscate a Metasploit payload to avoid detection by Antivirus Engines and shall try to go invisible. We would start from the ground up: Using a completely unobfuscated shellcode, and try to build upon it till we reach zero detections. All the associated code for this blog can be found in this Github repository.
-We would employ known techniques and see how they affect detection rates uploading the compiled executable to AntiScan as it does not submit the samples to the vendors.
-        
-        <div class="read-more-link">
-            <a href="/blogs/posts/a_study_in_obfuscation/">Read More…</a>
-        </div>
-        
-    </article>
-    <article class="post">
-        <div class="info">
-    <h1 class="post-title">
-        <a href="https://whokilleddb.github.io/blogs/posts/dlink_dir-819_lfi_and_dos/">CVE-2022-38258: DLink DIR 819 LFI And DoS</a>
-    </h1>
-    <time datetime="2022-07-31T21:01:25&#43;0530" class="post-date">
-        July 31, 2022
-    </time>
-    
-    
-    
-    
-    
-    
-</div>
-
-        Introduction D-Link is one of the leading brands when it comes to manufacturing consumer routers. There&rsquo;s a fair chance that you have a D-Link router back at home. The D-Link DIR 819 model is a very popular router.
-In this blog post, I explain how I found a Local-File-Inclusion 0day, now designated as CVE-2022-38258, and escalated it to achieve a Denial-of-Service attack. Though the blog is written with respect to the DIR-819 model, it should be reproduceable on any router running the same firmware.
-        
-        <div class="read-more-link">
-            <a href="/blogs/posts/dlink_dir-819_lfi_and_dos/">Read More…</a>
-        </div>
-        
-    </article>
-</div>
-
-
-
         </main>
     </body>
 </html>

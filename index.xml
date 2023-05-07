@@ -6,7 +6,16 @@
     <description>Recent content on </description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 05 Apr 2023 14:59:22 +0530</lastBuildDate><atom:link href="https://whokilleddb.github.io/blogs/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 06 May 2023 17:11:28 +0530</lastBuildDate><atom:link href="https://whokilleddb.github.io/blogs/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>UEFI Jungle</title>
+      <link>https://whokilleddb.github.io/blogs/posts/uefi-jungle/</link>
+      <pubDate>Sat, 06 May 2023 17:11:28 +0530</pubDate>
+      
+      <guid>https://whokilleddb.github.io/blogs/posts/uefi-jungle/</guid>
+      <description>The UEFI Jungle While writing LazarusOS, I first came across UEFI from an implementation standpoint. I am pretty sure everyone has dealt with UEFI at some point, especially during booting up a new OS. In the good old days, we had the choice between Legacy BIOS and UEFI, and during some of my earlier iterations of the project, I did write some BIOS bootloaders in assembly, but transitioning to UEFI was a whole new game.</description>
+    </item>
+    
     <item>
       <title>Process Ghosting</title>
       <link>https://whokilleddb.github.io/blogs/posts/process-ghosting/</link>
