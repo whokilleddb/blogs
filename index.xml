@@ -6,7 +6,16 @@
     <description>Recent content on </description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 06 May 2023 17:11:28 +0530</lastBuildDate><atom:link href="https://whokilleddb.github.io/blogs/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 10 May 2023 00:58:45 +0530</lastBuildDate><atom:link href="https://whokilleddb.github.io/blogs/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Heaven&#39;s Gate and the tale of Segments</title>
+      <link>https://whokilleddb.github.io/blogs/posts/heavens-gate-and-the-tale-of-segments/</link>
+      <pubDate>Wed, 10 May 2023 00:58:45 +0530</pubDate>
+      
+      <guid>https://whokilleddb.github.io/blogs/posts/heavens-gate-and-the-tale-of-segments/</guid>
+      <description>Remember Heaven&amp;rsquo;s Gate? (not the Kris Kristofferson movie) I am pretty sure that most intermediate malware developer&amp;rsquo;s/red-teamers know of Heaven&amp;rsquo;s Gate, an age-old technique that malware authors leverage to run 64-bit code from 32-bit processes using Wow64, which emulates a 32-bit system on 64-bit machines (if you are not familiar with it, I HIGHLY recommend reading on it first). The system creates a 64-bit process and creates a 32-bit environment, inside which the 32-bit program runs.</description>
+    </item>
+    
     <item>
       <title>UEFI Jungle</title>
       <link>https://whokilleddb.github.io/blogs/posts/uefi-jungle/</link>

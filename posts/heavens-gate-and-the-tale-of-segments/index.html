@@ -21,7 +21,7 @@
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Tags &middot; </title>
+    <title>Heaven&#39;s Gate and the tale of Segments &middot; </title>
     <meta name="description" content="" />
 
     
@@ -35,7 +35,6 @@
 
 
     
-    <link href="https://whokilleddb.github.io/blogs/tags/index.xml" rel="alternate" type="application/rss+xml" title="" />
     
     <style>
     body {
@@ -199,11 +198,229 @@ powered by <a target="_blank" href="https://gohugo.io">Hugo</a> | themed with <a
 </aside>
 
         <main class="content container">
-            <h1 class="title">Tags</h1>
-<ul class="entries">
+            <div class="post">
+  <div class="info">
+    <h1 class="post-title">
+        <a href="https://whokilleddb.github.io/blogs/posts/heavens-gate-and-the-tale-of-segments/">Heaven&#39;s Gate and the tale of Segments</a>
+    </h1>
+    <time datetime="2023-05-10T00:58:45&#43;0530" class="post-date">
+        May 10, 2023
+    </time>
     
+    
+    
+    
+    
+    
+</div>
+
+  <h2 id="remember-heavens-gate-not-the-kris-kristofferson-movie">Remember Heaven&rsquo;s Gate? (not the Kris Kristofferson movie)</h2>
+<p>I am pretty sure that most intermediate malware developer&rsquo;s/red-teamers know of <a href="https://encyclopedia.kaspersky.com/glossary/heavens-gate/">Heaven&rsquo;s Gate</a>, an age-old technique that malware authors leverage to run 64-bit code from 32-bit processes using <code>Wow64</code>, which emulates a 32-bit system on 64-bit machines (if you are not familiar with it, I HIGHLY recommend reading on it first). The system creates a 64-bit process and creates a 32-bit environment, inside which the 32-bit program runs.</p>
+<p>For example, note the implementation of <code>NtOpenFile</code> on x64 systems. Notice how the function makes a <code>syscall</code>?</p>
+<p><img src="/blogs/images/heavens-gate/ntopenfile64.png" alt="64 bit implementation on NtOpenFile"></p>
+<p>Meanwhile, looking at the 32-bit implementation of the same, notice how there are no <code>syscall</code> instructions? Rather, it is calling some other function (also see that <code>0x33</code>? In a way, this blog is all about that!)</p>
+<p><img src="/blogs/images/heavens-gate/ntopenfile32.png" alt="32 bit implementation on NtOpenFile"></p>
+<p>Now, <strong>Heaven&rsquo;s Gate</strong> technique did receive a solid punch-in-the-gut when Windows 10 introduced Control-Flow-Guard(CFG) but hackers came back stronger (see <a href="https://www.youtube.com/watch?v=OuN2jgre-3o">Sheng-Hao Ma&rsquo;s  HITB Talk</a>)</p>
+<p>However, the main thing I want to talk about in this blog is how the segmentation register comes into all of this with the whole <em>&ldquo;0x33-for-64-0x23-for-32 stuff&rdquo;</em> (if you have read through Heaven&rsquo;s Gate, you know what I am talking about). Initially, I found it very confusing, so, this is my attempt to break the thing down for my fellow security researchers struggling with the same!</p>
+<h2 id="a-much-needed-glossary-of-terms">(A much-needed) Glossary of Terms</h2>
+<p>Before we proceed, we need to define certain terms which will keep reappearing throughout the blog. The below table, taken from <a href="https://wiki.osdev.org/GDT_Tutorial">OSDev Wiki</a> and some other related terms:</p>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>What the 🦆 it means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Segment</td>
+<td>A logically contiguous chunk of memory with consistent properties (from the CPU&rsquo;s perspective)</td>
+</tr>
+<tr>
+<td>Segment Register</td>
+<td>A register of your CPU that refers to a segment for a particular purpose (<strong>CS</strong>, <strong>DS</strong>, <strong>SS</strong>, <strong>ES</strong>) or for general use (<strong>FS</strong>, <strong>GS</strong>)</td>
+</tr>
+<tr>
+<td>Code Segment (CS)</td>
+<td>This segment is used for storing executable code. When the CPU executes an instruction, it reads the code from the memory pointed to by the CS segment register.</td>
+</tr>
+<tr>
+<td>Data Segment (DS)</td>
+<td>This segment is used for storing data that is accessed by the program. For example, variables and arrays are typically stored in the DS segment.</td>
+</tr>
+<tr>
+<td>Stack Segment (SS)</td>
+<td>This segment is used for storing the program stack, which is used to manage function calls and local variables. The stack grows downwards from the end of the segment.</td>
+</tr>
+<tr>
+<td>Extra Segment (ES)</td>
+<td>This segment is an additional data segment that can be used by the program.</td>
+</tr>
+<tr>
+<td>FS/GS Segments</td>
+<td>This segment is an additional data segment that was originally intended to provide thread-local storage.</td>
+</tr>
+<tr>
+<td>Segment Selector</td>
+<td>A Segment Selector is a 16-bit binary data structure specific to the IA-32 and x86-64 architectures. It is used in Protected Mode and Long Mode. Its value identifies a segment in either the GDT or an LDT. It contains three fields and is used in a variety of situations to interact with Segmentation.</td>
+</tr>
+<tr>
+<td>Segment Descriptor</td>
+<td>An entry in a descriptor table. These are a binary data structure that tells the CPU the attributes of a given segment.</td>
+</tr>
+<tr>
+<td>Global Descriptor Table (GDT)</td>
+<td>The GDT is a data structure that is used by Intel x86-family for defining the characteristics of the various segments like the size, the base address, and access privileges like write and executable.</td>
+</tr>
+<tr>
+<td>GDTR</td>
+<td>The GDT is pointed to by the value in the GDTR register. This is loaded using the LGDT assembly instruction, whose argument is a pointer to a GDT Descriptor structure</td>
+</tr>
+</tbody>
+</table>
+<p><em>Phew! Those are a lot of definitions</em></p>
+<p><img src="https://media.tenor.com/FVL2P5gxMnAAAAAC/phew-close.gif" alt=""></p>
+<p>Side Note: If all of this sounds complicated and too much to unpack, I would suggest just try to understand what <code>segments</code> and <code>segment selectors</code> are, and we should be good for a while!</p>
+<h2 id="what-is-the-deal-with-0x230x33-segment-selectors-anyway">What is the deal with 0x23/0x33 Segment Selectors anyway?</h2>
+<p>Remember the little <code>0x33</code> we spotted earlier in the 32-bit implementation of <code>NtOpenFile</code> in <code>ntdll.dll</code>? It essentially allows us to switch modes into 64-bit  mode.</p>
+<p>But how does the whole thing work behind the hood? Where does this whole <em>&quot;<code>0x33</code> for 64-bit and <code>0x23</code> for 32-bit&quot;</em> narrative come from?</p>
+<p>To answer that, we need to look into the GDT a bit. <a href="https://en.wikipedia.org/wiki/Global_Descriptor_Table#Description">Wikipedia</a> introduces GDT as:</p>
+<blockquote>
+<p>The GDT is a table of 8-byte entries. Each entry may refer to a segment descriptor, Task State Segment(TSS), Local Descriptor Table (LDT), or call gate.</p>
+</blockquote>
+<p>The same article also mentions the following:</p>
+<blockquote>
+<p>In order to reference a segment, a program must use its index inside the GDT or the LDT. Such an index is called a segment selector (or selector). The selector must be loaded into a segment register to be used.</p>
+</blockquote>
+<p>The part we would be focusing on is the <code>segment descriptor</code> part of the definition.</p>
+<h3 id="segment-descriptors">Segment Descriptors</h3>
+<p>The x86 and x86-64 <code>segment descriptor</code> has the following form (<a href="https://en.wikipedia.org/wiki/Segment_descriptor#Structure">source</a>):</p>
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/SegmentDescriptor.svg/870px-SegmentDescriptor.svg.png" alt=""></p>
+<p>The important parts we need to consider here are:</p>
+<ul>
+<li><strong>Limit</strong>: 1.  The segment limit which specifies the segment size</li>
+<li><strong>G=Granularity</strong>: If clear, the limit is in units of bytes, with a maximum of 2^20 bytes. If set, the limit is in units of 4096-byte pages, for a maximum of 2^32 bytes.</li>
+<li><strong>D/B</strong>:
+<ul>
+<li><strong>D = Default</strong> operand size: If clear, this is a 16-bit code segment; if set, this is a 32-bit segment.</li>
+<li><strong>B = Big</strong>: If set, the maximum offset size for a data segment is increased to 32-bit 0xffffffff. Otherwise, it&rsquo;s the 16-bit max 0x0000ffff. Essentially the same meaning as &ldquo;D&rdquo;.</li>
+</ul>
+</li>
+<li><strong>L=Long</strong>: If set, this is a 64-bit segment (and D must be zero), and code in this segment uses the 64-bit instruction encoding. &ldquo;L&rdquo; cannot be set at the same time as &ldquo;D&rdquo; aka &ldquo;B&rdquo;. (Bit 21 in the image)</li>
+<li><strong>AVL=Available</strong>: For software use, not used by hardware (Bit 20 in the image with the label A)</li>
+<li><strong>P=Present</strong>: If clear, a <em>&ldquo;segment not present&rdquo;</em> exception is generated on any reference to this segment</li>
+<li><strong>DPL=Descriptor privilege level</strong>: Privilege level (ring) required to access this descriptor</li>
+</ul>
+<p>From this, we can presume the values of some fields for the time when we are in 64-bit land:</p>
+<ul>
+<li>The <strong>Long bit flag</strong> must be set to <strong>1</strong> while the <strong>D/B bit</strong> must be unset.</li>
+<li>The <strong>Granularity flag</strong> must be set for 32-bit (because it can only address a limited amount of memory) and unset for 64-bit memory</li>
+<li>The <strong>Limit</strong> must be 0 for 64-bit (because it can address 2^64 bytes, aka 16 Exabytes of memory) while it must be set to <strong>0xFFFFFFF</strong> for 32-bit (because it can address only 2^32, aka 4 GB of memory)</li>
+</ul>
+<h3 id="getting-things-real-for-a-moment">Getting things real for a moment</h3>
+<p>In real mode, only 16-bit register values are used, yet a CPU can address up to 1 MB of physical memory, how? When in real mode, memory is divided into segments, and each segment is 64 KB in size. The CPU generates a physical address by combining a 16-bit segment value with a 16-bit offset value, i.e, the segment register is multiplied by 16 (shifted left by 4 bits) and then added to the address to give a 20-bit address and allowing the whole 1 MB of memory to be accessed.</p>
+<p>However, whenever the system kicks into Protected Mode, the segment register starts behaving differently. It acts like a selector which is split up into the following parts:
+<img src="http://ece-research.unm.edu/jimp/310/slides/micro_arch2-6.gif" alt="Segment Registers in Protected Mode"></p>
+<ul>
+<li>
+<p><strong>Descriptor Index and Table Index (TI)</strong> :</p>
+<ul>
+<li>
+<p>The 13 bit descriptor index selects one of up to 8K descriptors in either the GDT and LDT, as specified by the TI bit.</p>
+</li>
+<li>
+<p><em>Therefore, these 14 bits allows access to 16K 8-byte descriptors.</em></p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>RPL</strong> :</p>
+<ul>
+<li>The desired privilege level of the program.</li>
+<li>Access is granted if the RPL value is lower (higher in privilege) than the AR of the segment. Otherwise, a privilege violation is issued.</li>
+</ul>
+</li>
+</ul>
+<p>So when we see something code like:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-asm" data-lang="asm"><span style="display:flex;"><span><span style="color:#a6e22e">call</span> <span style="color:#ae81ff">0x33</span>:<span style="color:#66d9ef">address</span>
+</span></span></code></pre></div><p>or</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-asm" data-lang="asm"><span style="display:flex;"><span><span style="color:#a6e22e">call</span> <span style="color:#ae81ff">0x23</span>:<span style="color:#66d9ef">address</span>
+</span></span></code></pre></div><p>It means that the selector bits are changing. Looking at the <a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/arch/x86/include/asm/segment.h?id=5e857ce6eae7ca21b2055cca4885545e29228fe2#n176">Linux kernel source</a> (to the people who thought this was just related to Windows: pat-pat kiddo, you might want to start over again), we see that the default selector value for 32-bit is <strong>4</strong> and for 64-bit it is <strong>6</strong>.</p>
+<p>Therefore,</p>
+<ul>
+<li>For 32-bit the register value becomes: <code>0000000000100</code> (4 for the selector value) + <code>0</code> (because we are using the GDT) + <code>11</code> (which means we are in ring 3) = <code>0000000000100011</code> = 35 = 0x23</li>
+<li>For 64-bit the register value becomes: <code>0000000000110</code> (6 for the selector value) + <code>0</code> (because we are using the GDT) + <code>11</code> (which means we are in ring 3) = <code>0000000000110011</code> = 51 = 0x33</li>
+</ul>
+<p>So now we know where those <code>0x23</code> and <code>0x33</code> come from, but then again, why did we have to choose the selector values of <strong>4</strong> for 32-bit and <strong>6</strong> for 64-bit?</p>
+<p>Well, the GDT has 2^13 = 8192 entries corresponding to the 13-bit selector. Out of which, entries 4 and 6 correspond to the following values:</p>
+<p><strong>Entry 4</strong></p>
+<p><img src="/blogs/images/heavens-gate/entry_4_0x23.png" alt="Entry 4 of GDT"></p>
+<p><strong>Entry 6</strong>
+<img src="/blogs/images/heavens-gate/entry_6_0x33.png" alt="Entry 6 of GDT"></p>
+<p>Remember when we talked about <a href="#what-is-the-deal-with-0x230x33-segment-selectors-anyway">Segment Descriptors</a>, we theorized the values for the <strong>Flags</strong> and the <strong>Limits</strong> for 32-bit mode and 64-bit mode?</p>
+<ul>
+<li>
+<p>Note how the <strong>Limit</strong> value is 0 for 64-bit and <strong>0xFFFFFFFF</strong> for 32-bit, as expected?</p>
+</li>
+<li>
+<p>Looking at the flags, the <code>fb</code> part stands for the access bytes but the <strong>c</strong> for 32-bit and <strong>2</strong> for 64-bit can be imagined as:</p>
+<p><img src="https://www.malwaretech.com/wp-content/uploads/2014/02/Flags-x86-x64.png" alt=""></p>
+</li>
+<li>
+<p>Therefore,</p>
+<ul>
+<li>For 32 bit we see the <strong>Granularity</strong> and <strong>D/B</strong> flags set, as expected.</li>
+<li>For 64-bit, we see the <strong>Long flag</strong> set as we had previously theorized</li>
+</ul>
+</li>
+</ul>
+<p>Therefore, we can now see that the <strong>4</strong> and the <strong>6</strong> correspond to these respective entries in the <strong>GDT</strong> for 32-bit and 64-bit respectively.  Therefore, even if the <code>segment descriptor</code> points to the same address, the selector determines in which mode the CPU executes it. As <a href="https://www.malwaretech.com/author/">Marcus Hutchins</a> puts it:</p>
+<blockquote>
+<p> So there you have it, both segment descriptors point to exactly the same address, the only difference is then when the 0x33 (64-bit) selector is set, the CPU will execute code in 64-bit mode. The selector is not magic and doesn’t tell windows how to interpret the code, it’s actually makes use of a CPU feature that allows the CPU to easily be switched between x86 and x64 mode using the GDT.</p>
+</blockquote>
+<h2 id="closing-words">Closing Words</h2>
+<p>This blog was focused on a very small part of a well-known technique used by malware authors. The main motivation behind this was to understand the low-level mechanisms which make these techniques possible, and to have more in-depth knowledge about the magic which happens under the hood. Till next time, <strong>Happy Hacking!</strong></p>
+<p><img src="https://media.tenor.com/ofYCY_OJQ1kAAAAd/hacker-hack.gif" alt=""></p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://s.itho.me/ccms_slides/2021/5/13/a23144e3-4313-4b9b-89c2-985fb3832b4e.pdf">Rebuild The Heaven&rsquo;s Gate: from 32-bit Hell back to 64-bit Wonderland - Sheng-Hao Ma</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Segment_descriptor#Structure">Segment descriptor</a></li>
+<li><a href="http://ece-research.unm.edu/jimp/310/slides/micro_arch2.html">Protected Mode Memory Addressing</a></li>
+<li><a href="https://www.malwarebytes.com/blog/news/2018/01/a-coin-miner-with-a-heavens-gate">A coin miner with a &ldquo;Heaven&rsquo;s Gate&rdquo;</a></li>
+<li><a href="https://www.malwaretech.com/2014/02/the-0x33-segment-selector-heavens-gate.html">The 0x33 Segment Selector (Heavens Gate)</a></li>
 </ul>
 
+  <hr>
+<div class="footer">
+    
+	    
+            
+	            <a class="previous-post" href="https://whokilleddb.github.io/blogs/posts/uefi-jungle/?ref=footer">« UEFI Jungle</a>
+	        
+        
+	    
+    
+</div>
+
+  <div class="article-toc " >
+    <h4></h4>
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#remember-heavens-gate-not-the-kris-kristofferson-movie">Remember Heaven&rsquo;s Gate? (not the Kris Kristofferson movie)</a></li>
+    <li><a href="#a-much-needed-glossary-of-terms">(A much-needed) Glossary of Terms</a></li>
+    <li><a href="#what-is-the-deal-with-0x230x33-segment-selectors-anyway">What is the deal with 0x23/0x33 Segment Selectors anyway?</a>
+      <ul>
+        <li><a href="#segment-descriptors">Segment Descriptors</a></li>
+        <li><a href="#getting-things-real-for-a-moment">Getting things real for a moment</a></li>
+      </ul>
+    </li>
+    <li><a href="#closing-words">Closing Words</a></li>
+    <li><a href="#references">References</a></li>
+  </ul>
+</nav>
+</div>
+
+</div>
         </main>
     </body>
 </html>
